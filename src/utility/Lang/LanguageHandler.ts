@@ -27,7 +27,7 @@ export class LanguageHandler {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getByKey(key: string): string | Record<string, any> {
-    return this.getFromDictByKey(this.dictionary, key);
+    return this.getFromDictByKey(key);
   }
 
   /**
@@ -39,7 +39,9 @@ export class LanguageHandler {
       if (this.dictionary == null) this.updateDictionary();
       const strAtKey = this.getByKey(key);
       if (valueObj == null) return <string>strAtKey;
-      if (typeof strAtKey !== 'string') throw new Error(`Value at ${key} is not a string: ${strAtKey}`);
+      if (typeof strAtKey !== 'string') { // noinspection ExceptionCaughtLocallyJS
+        throw new Error(`Value at ${key} is not a string: ${strAtKey}`);
+      }
       return LanguageHandler.processTemplate(strAtKey, valueObj);
     } catch (e) {
       console.error(e);
@@ -47,8 +49,8 @@ export class LanguageHandler {
     }
   }
 
-  private getFromDictByKey(dict: Record<string, any>, key: string): string | Record<string, any> {
-    return getByNestedKey(dict, key);
+  private getFromDictByKey(key: string): string | Record<string, any> {
+    return getByNestedKey(this.dictionary, key);
   }
 
   // solution from
