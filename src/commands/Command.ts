@@ -39,7 +39,7 @@ export default class Command implements Executable {
   async execute(message: Message): Promise<void> {
     try {
       this.checkConfig();
-      const parsedMessage = new MessageParser(message.content).parse();
+      const parsedMessage: ParsedMessage = new MessageParser(message.content).parse();
       await this.run(message, parsedMessage);
     } catch (err) {
       this.handleError(message, err);
