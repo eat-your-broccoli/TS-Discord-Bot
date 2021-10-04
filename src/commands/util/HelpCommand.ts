@@ -1,25 +1,23 @@
 import type { Message } from 'discord.js';
-// eslint-disable-next-line import/no-cycle
 import Command from '../Command';
 import type DiscordBot from '../../DiscordBot';
 import MessageHandler from '../../utility/Messages/MessageHandler';
 import EmbedCategory from '../../utility/Messages/EmbedCategory';
 import MessageParser from '../../utility/MessageParser/MessageParser';
 import type Shorthand from '../Shorthand';
+import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
-/**
- * HelpCommand
- *
- * prints help text for this bot
- */
 export default class HelpCommand extends Command {
   commands: Record<string, Command>;
 
   shorthands: Record<string, Shorthand>;
 
+  lang: ScopedLanguageHandler = null;
+
   constructor() {
     super('help', 'util');
-    this.description = 'Such dir Hilfe';
+    this.lang = new ScopedLanguageHandler('commands.util.help');
+    this.description = this.lang.get('description');
     this.usage = `${this.prefix} [command]`;
     this.example = `${this.prefix}
     \n${this.prefix} [command]`;
@@ -48,7 +46,8 @@ export default class HelpCommand extends Command {
     const command = <Command> this.commands[commandStr] || this.commands[`/${commandStr}`];
     if (command == null) {
       // error
-      await MessageHandler.replySimpleText(message, `Unbekannter Command: ${commandStr}`);
+      await MessageHandler.replySimpleText(message,
+        this.lang.get('error.unknownCommand', { commandName: commandStr }));
     } else {
       const title = command.commandName;
       const { description } = command;

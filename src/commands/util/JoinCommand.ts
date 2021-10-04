@@ -3,11 +3,15 @@ import Command from '../Command';
 import ParsedMessage from '../../utility/MessageParser/ParsedMessage';
 import getVoiceChannelByID from '../../utility/getVoiceChannelByID';
 import ChannelID from '../../utility/ChannelID';
+import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
 export default class JoinCommand extends Command {
+  private lang: ScopedLanguageHandler;
+
   constructor() {
     super('join', 'util');
-    this.description = 'Lade den Bot in einen Voice-Channel ein';
+    this.lang = new ScopedLanguageHandler('commands.util.join');
+    this.description = this.lang.get('description');
     this.usage = `${this.prefix} // joins your voice channel\n${this.prefix} [<#VOICE_CHANNEL_ID>]\n${this.prefix} --channel <#VOICE_CHANNEL_ID>`;
     this.example = `${this.prefix}\n${this.prefix} <#12345>\n${this.prefix} --channel <#12345>`;
   }
@@ -23,7 +27,7 @@ export default class JoinCommand extends Command {
     } else {
       channel = message.member.voice.channel;
     }
-    if (!channel) throw new Error('no channel found to join');
+    if (!channel) throw new Error(this.lang.get('error.noChannel'));
     await channel.join();
   }
 }

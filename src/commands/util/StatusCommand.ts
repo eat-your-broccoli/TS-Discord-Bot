@@ -5,6 +5,7 @@ import getVersion from '../../utility/getVersion';
 import getBotOwner from '../../utility/getBotOwner';
 import getUptime from '../../utility/getUptime';
 import MessageHandler from '../../utility/Messages/MessageHandler';
+import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
 /**
  * StatusCommand
@@ -12,9 +13,12 @@ import MessageHandler from '../../utility/Messages/MessageHandler';
  * prints status info
  */
 export default class StatusCommand extends Command {
+  private lang: ScopedLanguageHandler;
+
   constructor() {
     super('status', 'util');
-    this.description = 'Erhalte Statusmeldung über den Bot';
+    this.lang = new ScopedLanguageHandler('commands.util.status');
+    this.description = this.lang.get('description');
     this.usage = `${this.prefix}`;
     this.example = `${this.prefix}`;
   }
@@ -24,9 +28,9 @@ export default class StatusCommand extends Command {
     const owner = await getBotOwner();
     const uptime = await getUptime();
     const text = `Status
-    ${MessageHandler.toInlineBlock('version')}\t${version}
-    ${MessageHandler.toInlineBlock('owner')}\t<@${owner}>
-    ${MessageHandler.toInlineBlock('uptime')}\t${uptime}
+    ${MessageHandler.toInlineBlock(this.lang.get('entries.version'))}\t${version}
+    ${MessageHandler.toInlineBlock(this.lang.get('entries.owner'))}\t<@${owner}>
+    ${MessageHandler.toInlineBlock(this.lang.get('entries.uptime'))}\t${uptime}
     `;
     await MessageHandler.sendSimpleText(message, text);
   }

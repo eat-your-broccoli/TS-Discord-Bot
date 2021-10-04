@@ -1,11 +1,15 @@
 import { Message } from 'discord.js';
 import Command from '../Command';
 import Globals from '../../utility/Globals';
+import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
-export default class JoinCommand extends Command {
+export default class LeaveCommand extends Command {
+  private lang: ScopedLanguageHandler;
+
   constructor() {
     super('leave', 'util');
-    this.description = 'Bot verlässt den aktuellen Voice-Channel';
+    this.lang = new ScopedLanguageHandler('commands.util.leave');
+    this.description = this.lang.get('description');
     this.usage = `${this.prefix}`;
     this.example = `${this.prefix}`;
   }
