@@ -1,0 +1,33 @@
+{
+  "commands": {
+    "util": {
+      "help": {
+        "description": "Liste Bot-Commands oder genauere Hilfe zu einem Command",
+        "reply": {
+          "title": "Titel"
+        },
+        "error": {
+          "unknownCommand": "Unbekannter Command: {{commandName}}"
+        }
+      },
+      "join": {
+        "description": "Lasse den Bot einem Voice-Channel joinen",
+        "error": {
+          "noChannel": "Kein Channel zum Joinen verfügbar"
+        }
+      },
+      "leave": {
+        "description": "Der Bot verlässt den aktuellen Voice-Channel"
+      },
+      "status": {
+        "description": "Informationen über den Bot",
+        "entries": {
+          "owner": "Besitzer",
+          "version": "Version",
+          "uptime": "Uptime"
+        }
+      }
+
+    }
+  }
+}
