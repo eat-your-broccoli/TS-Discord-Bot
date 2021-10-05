@@ -1,7 +1,7 @@
 import { Message } from 'discord.js';
 import Command from '../Command';
-import Globals from '../../utility/Globals';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
+import leaveVoiceChannel from '../../utility/Voice/leaveVoiceChannel';
 
 export default class LeaveCommand extends Command {
   private lang: ScopedLanguageHandler;
@@ -17,10 +17,7 @@ export default class LeaveCommand extends Command {
   async run(message: Message): Promise<void> {
     // only leave if message originates from same server as bot is connected to
     // otherwise bot may leave from channel on server A if call is made in server B
-    const guildID = message.guild.id;
-    const voiceConnection = Globals.bot.client.voice.connections.get(guildID);
-    if (voiceConnection) {
-      voiceConnection.channel.leave();
-    }
+    const { guild } = message;
+    await leaveVoiceChannel(guild);
   }
 }

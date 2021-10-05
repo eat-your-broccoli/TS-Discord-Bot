@@ -18,8 +18,9 @@
   "author": "Luca Göttle https://github.com/eat-your-broccoli",
   "license": "MIT",
   "dependencies": {
+    "@discordjs/voice": "^0.6.0",
     "@types/node": "^16.10.2",
-    "discord.js": "^12.5.1",
+    "discord.js": "13.1.0",
     "dotenv": "^8.6.0"
   },
   "devDependencies": {

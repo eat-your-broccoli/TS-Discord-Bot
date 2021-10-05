@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import CommandConfig from './CommandConfig';
 import Executable from './Executable';
 import EmbedCategory from '../utility/Messages/EmbedCategory';
-import MessageHandler from '../utility/Messages/MessageHandler';
+import Messages from '../utility/Messages/Messages';
 import ParsedMessage from '../utility/MessageParser/ParsedMessage';
 import MessageParser from '../utility/MessageParser/MessageParser';
 
@@ -59,7 +59,7 @@ export default class Command implements Executable {
    * handles error on a basic level
    */
   handleError(message: Message, error: Error): Promise<Message> {
-    return MessageHandler.replySimpleText(message, error.message);
+    return Messages.replySimpleText(message, error.message);
   }
 
   /**
@@ -77,11 +77,11 @@ export default class Command implements Executable {
   getHelpEmbedCategory(): EmbedCategory[] {
     const categories: EmbedCategory[] = [];
     categories.push(
-      new EmbedCategory('Usage', MessageHandler.toBlock(this.usage)),
+      new EmbedCategory('Usage', Messages.toBlock(this.usage)),
     );
 
     categories.push(
-      new EmbedCategory('Beispiele', MessageHandler.toBlock(this.example)),
+      new EmbedCategory('Beispiele', Messages.toBlock(this.example)),
     );
     return categories;
   }
