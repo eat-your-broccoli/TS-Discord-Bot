@@ -4,7 +4,7 @@ import Command from '../Command';
 import getVersion from '../../utility/getVersion';
 import getBotOwner from '../../utility/getBotOwner';
 import getUptime from '../../utility/getUptime';
-import MessageHandler from '../../utility/Messages/MessageHandler';
+import Messages from '../../utility/Messages/Messages';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
 /**
@@ -28,10 +28,10 @@ export default class StatusCommand extends Command {
     const owner = await getBotOwner();
     const uptime = await getUptime();
     const text = `Status
-    ${MessageHandler.toInlineBlock(this.lang.get('entries.version'))}\t${version}
-    ${MessageHandler.toInlineBlock(this.lang.get('entries.owner'))}\t<@${owner}>
-    ${MessageHandler.toInlineBlock(this.lang.get('entries.uptime'))}\t${uptime}
+    ${Messages.toInlineBlock(this.lang.get('entries.version'))}\t${version}
+    ${Messages.toInlineBlock(this.lang.get('entries.owner'))}\t<@${owner}>
+    ${Messages.toInlineBlock(this.lang.get('entries.uptime'))}\t${uptime}
     `;
-    await MessageHandler.sendSimpleText(message, text);
+    await Messages.sendSimpleText(message, text);
   }
 }

@@ -1,7 +1,7 @@
 import type { Message } from 'discord.js';
 import Command from '../Command';
 import type DiscordBot from '../../DiscordBot';
-import MessageHandler from '../../utility/Messages/MessageHandler';
+import Messages from '../../utility/Messages/Messages';
 import EmbedCategory from '../../utility/Messages/EmbedCategory';
 import MessageParser from '../../utility/MessageParser/MessageParser';
 import type Shorthand from '../Shorthand';
@@ -46,14 +46,14 @@ export default class HelpCommand extends Command {
     const command = <Command> this.commands[commandStr] || this.commands[`/${commandStr}`];
     if (command == null) {
       // error
-      await MessageHandler.replySimpleText(message,
+      await Messages.replySimpleText(message,
         this.lang.get('error.unknownCommand', { commandName: commandStr }));
     } else {
       const title = command.commandName;
       const { description } = command;
       const categories = command.getHelpEmbedCategory();
-      const richText = MessageHandler.createRichText({ title, description, categories });
-      await MessageHandler.sendRichText(message, richText);
+      const richText = Messages.createRichText({ title, description, categories });
+      await Messages.sendRichText(message, richText);
     }
   }
 
@@ -68,14 +68,14 @@ export default class HelpCommand extends Command {
     Object.keys(commandsByCategory).forEach((key) => {
       const embedCat = new EmbedCategory(key, '', true);
       commandsByCategory[key].forEach((c) => {
-        embedCat.text += MessageHandler.toInlineBlock(`${c.prefix}`);
+        embedCat.text += Messages.toInlineBlock(`${c.prefix}`);
         embedCat.text += '\n';
       });
       messageCategories.push(embedCat);
     });
 
-    const reply = MessageHandler.createRichText({ title, categories: messageCategories });
-    await MessageHandler.sendRichText(message, reply);
+    const reply = Messages.createRichText({ title, categories: messageCategories });
+    await Messages.sendRichText(message, reply);
   }
 
   /**

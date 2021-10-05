@@ -1,4 +1,4 @@
-import { Client, Message } from 'discord.js';
+import { Client, Message, Intents } from 'discord.js';
 // eslint-disable-next-line import/no-cycle
 import Command from './commands/Command';
 // eslint-disable-next-line import/no-cycle
@@ -18,7 +18,7 @@ export default class DiscordBot {
   public shorthands: Record<string, Shorthand>;
 
   constructor(commands: Command[] = [], shorthands: Shorthand[] = []) {
-    this.client = new Client();
+    this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
     this.commands = this.executableArrayToRecord<Command>(commands);
     this.shorthands = this.executableArrayToRecord<Shorthand>(shorthands);
 
@@ -37,7 +37,7 @@ export default class DiscordBot {
       console.error('DiscordBot.onError(): ', error);
     });
 
-    this.client.on('message', async (msg: Message) => {
+    this.client.on('messageCreate', async (msg: Message) => {
       const executable = this.findMatchingExecutable(msg.content);
       if (executable) {
         await executable.execute(msg)

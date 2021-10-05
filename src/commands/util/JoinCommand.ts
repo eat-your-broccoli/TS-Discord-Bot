@@ -1,9 +1,10 @@
-import { Message, VoiceChannel } from 'discord.js';
+import { Message, StageChannel, VoiceChannel } from 'discord.js';
 import Command from '../Command';
 import ParsedMessage from '../../utility/MessageParser/ParsedMessage';
 import getVoiceChannelByID from '../../utility/getVoiceChannelByID';
 import ChannelID from '../../utility/ChannelID';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
+import join from '../../utility/Voice/join';
 
 export default class JoinCommand extends Command {
   private lang: ScopedLanguageHandler;
@@ -18,7 +19,7 @@ export default class JoinCommand extends Command {
 
   async run(message: Message, parsedMessage: ParsedMessage): Promise<void> {
     const channelID = parsedMessage.getArg('channel', 1);
-    let channel: VoiceChannel;
+    let channel: VoiceChannel | StageChannel;
     // if channelID is passed, join there
     // otherwise join user in their channel
     if (channelID) {
@@ -28,6 +29,6 @@ export default class JoinCommand extends Command {
       channel = message.member.voice.channel;
     }
     if (!channel) throw new Error(this.lang.get('error.noChannel'));
-    await channel.join();
+    join(channel);
   }
 }
