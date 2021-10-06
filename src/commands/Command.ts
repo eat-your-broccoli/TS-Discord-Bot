@@ -1,11 +1,10 @@
-import { Message } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandInteraction, Message } from 'discord.js';
+import { SlashCommandBuilder, SlashCommandStringOption } from '@discordjs/builders';
+import { SlashCommandOptionBase } from '@discordjs/builders/dist/interactions/slashCommands/mixins/CommandOptionBase';
 import CommandConfig from './CommandConfig';
 import Executable from './Executable';
 import EmbedCategory from '../utility/Messages/EmbedCategory';
 import Messages from '../utility/Messages/Messages';
-import ParsedMessage from '../utility/MessageParser/ParsedMessage';
-import MessageParser from '../utility/MessageParser/MessageParser';
 
 /**
  * represents a base command
@@ -28,8 +27,10 @@ export default class Command implements Executable {
 
   public slashCommand: SlashCommandBuilder;
 
+  public commandOptions : SlashCommandOptionBase[] = [];
+
   constructor(prefix: string, category = 'misc', config: CommandConfig = new CommandConfig()) {
-    this.prefix = `/${prefix}`;
+    this.prefix = prefix;
     this.commandName = prefix;
     this.category = category || prefix;
     this.config = config;
@@ -39,23 +40,8 @@ export default class Command implements Executable {
    * execute command
    * performs config check and handles error
    */
-  async execute(message: Message): Promise<void> {
-    try {
-      this.checkConfig();
-      const parsedMessage: ParsedMessage = new MessageParser(message.content).parse();
-      await this.run(message, parsedMessage);
-    } catch (err) {
-      this.handleError(message, err);
-    }
-  }
-
-  /**
-   * Run the command
-   * this excludes config checks and error handling
-   * run method shall be overwritten by Commands extending from this class
-   */
-  async run(message: Message, parsedMessage: ParsedMessage): Promise<void> {
-    throw new Error(`stump: ${message.content} ${parsedMessage}`);
+  async execute(interaction: CommandInteraction): Promise<void> {
+    throw new Error(`stump: ${interaction}`);
   }
 
   /**
@@ -93,5 +79,8 @@ export default class Command implements Executable {
     this.slashCommand = new SlashCommandBuilder()
       .setName(this.commandName)
       .setDescription(this.description);
+    this.commandOptions.forEach((opt) => {
+      if (opt instanceof SlashCommandStringOption) this.slashCommand.addStringOption(opt);
+    });
   }
 }

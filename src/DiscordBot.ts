@@ -1,4 +1,6 @@
-import { Client, Message, Intents } from 'discord.js';
+import {
+  Client, Intents, CommandInteraction,
+} from 'discord.js';
 
 import { REST } from '@discordjs/rest/dist';
 import { Routes } from 'discord-api-types/v9';
@@ -43,10 +45,10 @@ export default class DiscordBot {
       console.error('DiscordBot.onError(): ', error);
     });
 
-    this.client.on('messageCreate', async (msg: Message) => {
-      const executable = this.findMatchingExecutable(msg.content);
+    this.client.on('interactionCreate', async (interaction: CommandInteraction) => {
+      const executable = this.findMatchingExecutable(interaction.commandName);
       if (executable) {
-        await executable.execute(msg)
+        await executable.execute(interaction)
           .catch((err: Error) => {
             console.log(err);
           });
@@ -96,23 +98,6 @@ export default class DiscordBot {
       }).catch((err) => {
         console.error('Bot failed to start. Reason: ', err);
       });
-  }
-
-  /**
-   * parses an array of commands to object
-   * the commands prefix is the key in the object
-   * @param commands
-   * @return {{}}
-   */
-  commandArrayToObject(commands: Command[] = []): Record<string, Command> {
-    const commandsObj: Record<string, Command> = {};
-    commands.forEach((c) => {
-      if (commandsObj[c.prefix]) {
-        throw new Error(`Duplicate command for ${c.prefix}`);
-      }
-      commandsObj[c.prefix] = c;
-    });
-    return commandsObj;
   }
 
   /**
