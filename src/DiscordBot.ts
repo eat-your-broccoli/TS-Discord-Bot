@@ -1,11 +1,16 @@
 import { Client, Message, Intents } from 'discord.js';
-// eslint-disable-next-line import/no-cycle
+
+import { REST } from '@discordjs/rest/dist';
+import { Routes } from 'discord-api-types/v9';
 import Command from './commands/Command';
 // eslint-disable-next-line import/no-cycle
 import Shorthand from './commands/Shorthand';
 import Executable from './commands/Executable';
 // eslint-disable-next-line import/no-cycle
 import HelpCommand from './commands/util/HelpCommand';
+import getToken from './utility/getToken';
+import getClientId from './utility/getClientId';
+import getGuildId from './utility/getGuildId';
 
 /**
  * wrapping discord bot api in nice wrapper class
@@ -24,6 +29,7 @@ export default class DiscordBot {
 
     this.configureCommands();
     this.registerEvents();
+    this.registerSlashCommands(getToken(), getClientId(), getGuildId());
   }
 
   /**
@@ -137,5 +143,22 @@ export default class DiscordBot {
         c.configure({ context: this });
       }
     });
+  }
+
+  registerSlashCommands(token: string, clientId: string, guildId: string): void {
+    const commands: any[] = [];
+    Object.values(this.commands).forEach((c) => {
+      if (c.slashCommand == null) c.createSlashCommand();
+      commands.push(c.slashCommand.toJSON());
+    });
+    const restApi = new REST({ version: '9' }).setToken(token);
+    restApi.put(Routes.applicationGuildCommands(
+      clientId, guildId,
+    ), { body: commands })
+      .then(() => console.log('Successfully registered application commands'))
+      .catch((err) => {
+        console.error(`Failed to register slash commands: ${err.message}`);
+        throw err;
+      });
   }
 }

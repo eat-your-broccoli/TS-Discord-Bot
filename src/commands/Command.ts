@@ -1,4 +1,5 @@
 import { Message } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import CommandConfig from './CommandConfig';
 import Executable from './Executable';
 import EmbedCategory from '../utility/Messages/EmbedCategory';
@@ -24,6 +25,8 @@ export default class Command implements Executable {
   public usage: string;
 
   public example: string;
+
+  public slashCommand: SlashCommandBuilder;
 
   constructor(prefix: string, category = 'misc', config: CommandConfig = new CommandConfig()) {
     this.prefix = `/${prefix}`;
@@ -84,5 +87,11 @@ export default class Command implements Executable {
       new EmbedCategory('Beispiele', Messages.toBlock(this.example)),
     );
     return categories;
+  }
+
+  createSlashCommand(): void {
+    this.slashCommand = new SlashCommandBuilder()
+      .setName(this.commandName)
+      .setDescription(this.description);
   }
 }
