@@ -20,6 +20,8 @@ export default class Shorthand implements Executable {
   }
 
   async execute(interaction: CommandInteraction): Promise<void> {
-    return this.command.execute(interaction);
+    return this.command.go(interaction);
   }
+
+  go: (interaction: CommandInteraction) => Promise<any>;
 }

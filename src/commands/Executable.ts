@@ -7,5 +7,6 @@ import type DiscordBot from '../DiscordBot';
 export default interface Executable {
   prefix: string
   execute: (interaction: CommandInteraction) => Promise<void>
+  go: (interaction: CommandInteraction) => Promise<any>
   configure?: ({ context }: { context: DiscordBot }) => void
 }

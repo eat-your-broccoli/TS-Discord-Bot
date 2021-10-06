@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandStringOption } from '@discordjs/builders';
 import { SlashCommandOptionBase } from '@discordjs/builders/dist/interactions/slashCommands/mixins/CommandOptionBase';
 import CommandConfig from './CommandConfig';
@@ -47,8 +47,8 @@ export default class Command implements Executable {
   /**
    * handles error on a basic level
    */
-  handleError(message: Message, error: Error): Promise<Message> {
-    return Messages.replySimpleText(message, error.message);
+  handleError(interaction: CommandInteraction, error: Error): Promise<void> {
+    return interaction.reply(error.message);
   }
 
   /**
@@ -82,5 +82,9 @@ export default class Command implements Executable {
     this.commandOptions.forEach((opt) => {
       if (opt instanceof SlashCommandStringOption) this.slashCommand.addStringOption(opt);
     });
+  }
+
+  async go(interaction: CommandInteraction): Promise<any> {
+    await this.execute(interaction).catch((err) => this.handleError(interaction, err));
   }
 }
