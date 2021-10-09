@@ -1,5 +1,4 @@
-import type { Message } from 'discord.js';
-// eslint-disable-next-line import/no-cycle
+import type { CommandInteraction } from 'discord.js';
 import Command from '../Command';
 import getVersion from '../../utility/getVersion';
 import getBotOwner from '../../utility/getBotOwner';
@@ -23,7 +22,7 @@ export default class StatusCommand extends Command {
     this.example = `${this.prefix}`;
   }
 
-  async run(message: Message): Promise<void> {
+  async execute(interaction: CommandInteraction): Promise<void> {
     const version = await getVersion();
     const owner = await getBotOwner();
     const uptime = await getUptime();
@@ -32,6 +31,6 @@ export default class StatusCommand extends Command {
     ${Messages.toInlineBlock(this.lang.get('entries.owner'))}\t<@${owner}>
     ${Messages.toInlineBlock(this.lang.get('entries.uptime'))}\t${uptime}
     `;
-    await Messages.sendSimpleText(message, text);
+    await interaction.reply(text);
   }
 }

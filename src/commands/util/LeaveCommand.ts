@@ -1,4 +1,6 @@
-import { Message } from 'discord.js';
+import {
+  CommandInteraction,
+} from 'discord.js';
 import Command from '../Command';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 import leaveVoiceChannel from '../../utility/Voice/leaveVoiceChannel';
@@ -14,10 +16,8 @@ export default class LeaveCommand extends Command {
     this.example = `${this.prefix}`;
   }
 
-  async run(message: Message): Promise<void> {
-    // only leave if message originates from same server as bot is connected to
-    // otherwise bot may leave from channel on server A if call is made in server B
-    const { guild } = message;
-    await leaveVoiceChannel(guild);
+  async execute(interaction: CommandInteraction): Promise<void> {
+    await leaveVoiceChannel(interaction.guild);
+    await interaction.reply('Okay :( If you don\'t want me...');
   }
 }
