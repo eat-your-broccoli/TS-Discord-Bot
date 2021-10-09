@@ -8,6 +8,36 @@ A Discord Bot written in TypeScript.
 2. copy file `.env.example` to `.env`
 3. enter your bot credentials in `.env`
 
+## Add the Bot to your server
+
+Link to add bot: https://discord.com/api/oauth2/authorize?client_id=<b>YOUR-CLIENT-ID</b>&permissions=2150681664&redirect_uri=https%3A%2F%2Fdiscord.com%2Fapi%2Foauth2%2Fauthorize&response_type=code&scope=bot%20applications.commands%20messages.read
+
+### Gateway Intents
+
+No Gateway intents are required!
+
+### Scopes
+
+The following scopes are needed: 
+- `bot`
+- `applications.commands`
+- `messages.read`
+
+### Permissions
+
+The following bot permissions are needed:
+- general
+    - `view channels`
+- text
+    - `send messages`
+    - `embed links`
+    - `attach files`
+    - `use slash commands`
+- voice
+    - `connect`
+    - `speak`
+
+
 ## Build
 
 run `npm run build` to transpile `.ts`-files to `.js`.
