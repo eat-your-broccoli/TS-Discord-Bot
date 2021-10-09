@@ -1,10 +1,15 @@
-import { Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
+import {
+  SlashCommandBuilder,
+  SlashCommandChannelOption,
+  SlashCommandStringOption,
+  SlashCommandUserOption,
+} from '@discordjs/builders';
+import { SlashCommandOptionBase } from '@discordjs/builders/dist/interactions/slashCommands/mixins/CommandOptionBase';
 import CommandConfig from './CommandConfig';
 import Executable from './Executable';
 import EmbedCategory from '../utility/Messages/EmbedCategory';
 import Messages from '../utility/Messages/Messages';
-import ParsedMessage from '../utility/MessageParser/ParsedMessage';
-import MessageParser from '../utility/MessageParser/MessageParser';
 
 /**
  * represents a base command
@@ -25,8 +30,12 @@ export default class Command implements Executable {
 
   public example: string;
 
+  public slashCommand: SlashCommandBuilder;
+
+  public commandOptions : SlashCommandOptionBase[] = [];
+
   constructor(prefix: string, category = 'misc', config: CommandConfig = new CommandConfig()) {
-    this.prefix = `/${prefix}`;
+    this.prefix = prefix;
     this.commandName = prefix;
     this.category = category || prefix;
     this.config = config;
@@ -36,30 +45,15 @@ export default class Command implements Executable {
    * execute command
    * performs config check and handles error
    */
-  async execute(message: Message): Promise<void> {
-    try {
-      this.checkConfig();
-      const parsedMessage: ParsedMessage = new MessageParser(message.content).parse();
-      await this.run(message, parsedMessage);
-    } catch (err) {
-      this.handleError(message, err);
-    }
-  }
-
-  /**
-   * Run the command
-   * this excludes config checks and error handling
-   * run method shall be overwritten by Commands extending from this class
-   */
-  async run(message: Message, parsedMessage: ParsedMessage): Promise<void> {
-    throw new Error(`stump: ${message.content} ${parsedMessage}`);
+  async execute(interaction: CommandInteraction): Promise<void> {
+    throw new Error(`stump: ${interaction}`);
   }
 
   /**
    * handles error on a basic level
    */
-  handleError(message: Message, error: Error): Promise<Message> {
-    return Messages.replySimpleText(message, error.message);
+  handleError(interaction: CommandInteraction, error: Error): Promise<void> {
+    return interaction.reply(error.message);
   }
 
   /**
@@ -84,5 +78,20 @@ export default class Command implements Executable {
       new EmbedCategory('Beispiele', Messages.toBlock(this.example)),
     );
     return categories;
+  }
+
+  createSlashCommand(): void {
+    this.slashCommand = new SlashCommandBuilder()
+      .setName(this.commandName)
+      .setDescription(this.description);
+    this.commandOptions.forEach((opt) => {
+      if (opt instanceof SlashCommandStringOption) this.slashCommand.addStringOption(opt);
+      else if (opt instanceof SlashCommandChannelOption) this.slashCommand.addChannelOption(opt);
+      else if (opt instanceof SlashCommandUserOption) this.slashCommand.addUserOption(opt);
+    });
+  }
+
+  async go(interaction: CommandInteraction): Promise<any> {
+    await this.execute(interaction).catch((err) => this.handleError(interaction, err));
   }
 }

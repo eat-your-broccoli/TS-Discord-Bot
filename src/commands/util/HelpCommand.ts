@@ -1,10 +1,10 @@
-import type { Message } from 'discord.js';
+import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { SlashCommandStringOption } from '@discordjs/builders';
 import Command from '../Command';
 import type DiscordBot from '../../DiscordBot';
 import Messages from '../../utility/Messages/Messages';
 import EmbedCategory from '../../utility/Messages/EmbedCategory';
-import MessageParser from '../../utility/MessageParser/MessageParser';
-import type Shorthand from '../Shorthand';
+import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
 export default class HelpCommand extends Command {
@@ -21,61 +21,56 @@ export default class HelpCommand extends Command {
     this.usage = `${this.prefix} [command]`;
     this.example = `${this.prefix}
     \n${this.prefix} [command]`;
+    this.commandOptions = [
+      new SlashCommandStringOption().setName('commandname').setDescription('name of the command you want to know more about')
+        .setRequired(false),
+    ];
   }
 
-  /**
-   * prints help
-   * @param message
-   */
-  async run(message: Message): Promise<void> {
-    const parsedMessage = new MessageParser(message.content).parse();
-    const command = parsedMessage.getArg('command', 1);
-    if (command) {
-      await this.commandHelp(message, command);
-    } else {
-      await this.generalHelp(message);
-    }
+  async execute(interaction: CommandInteraction): Promise<void> {
+    const commandName = interaction.options.getString('commandname');
+    let reply: MessageEmbed;
+    if (commandName) reply = this.commandHelp(commandName);
+    else reply = this.generalHelp();
+    await interaction.reply({ embeds: [reply] });
   }
 
   /**
    * prints help for a single command
-   * @param message
    * @param commandStr
    */
-  async commandHelp(message: Message, commandStr: string): Promise<void> {
+  commandHelp(commandStr: string): MessageEmbed {
     const command = <Command> this.commands[commandStr] || this.commands[`/${commandStr}`];
     if (command == null) {
       // error
-      await Messages.replySimpleText(message,
-        this.lang.get('error.unknownCommand', { commandName: commandStr }));
+      throw new Error(this.lang.get('error.unknownCommand', { commandName: commandStr }));
     } else {
       const title = command.commandName;
       const { description } = command;
       const categories = command.getHelpEmbedCategory();
-      const richText = Messages.createRichText({ title, description, categories });
-      await Messages.sendRichText(message, richText);
+      return Messages.createRichText({ title, description, categories });
     }
   }
 
   /**
-     * print all available commands to the chat, ordered by category
-     * @param message
-     */
-  async generalHelp(message: Message): Promise<void> {
+   * print all available commands to the chat, ordered by category
+   */
+  generalHelp(): MessageEmbed {
     const title = 'Commands';
     const commandsByCategory: Record<string, Command[]> = this.sortCommandsByCategory();
     const messageCategories: EmbedCategory[] = [];
-    Object.keys(commandsByCategory).forEach((key) => {
-      const embedCat = new EmbedCategory(key, '', true);
-      commandsByCategory[key].forEach((c) => {
-        embedCat.text += Messages.toInlineBlock(`${c.prefix}`);
-        embedCat.text += '\n';
+    Object.keys(commandsByCategory)
+      .forEach((key) => {
+        const embedCat = new EmbedCategory(key, '', false);
+        commandsByCategory[key].forEach((c) => {
+          embedCat.text += Messages.toInlineBlock(`${c.prefix}`);
+          embedCat.text += `\t${c.description}`;
+          embedCat.text += '\n';
+        });
+        messageCategories.push(embedCat);
       });
-      messageCategories.push(embedCat);
-    });
 
-    const reply = Messages.createRichText({ title, categories: messageCategories });
-    await Messages.sendRichText(message, reply);
+    return Messages.createRichText({ title, categories: messageCategories });
   }
 
   /**
