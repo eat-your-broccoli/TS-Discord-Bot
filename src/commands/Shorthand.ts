@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 import type Command from './Command';
 import type Executable from './Executable';
 
@@ -19,7 +19,9 @@ export default class Shorthand implements Executable {
     this.command = command;
   }
 
-  async execute(message: Message): Promise<void> {
-    return this.command.execute(message);
+  async execute(interaction: CommandInteraction): Promise<void> {
+    return this.command.go(interaction);
   }
+
+  go: (interaction: CommandInteraction) => Promise<any>;
 }
