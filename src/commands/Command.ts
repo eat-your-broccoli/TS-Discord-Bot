@@ -1,5 +1,10 @@
 import { CommandInteraction } from 'discord.js';
-import { SlashCommandBuilder, SlashCommandStringOption } from '@discordjs/builders';
+import {
+  SlashCommandBuilder,
+  SlashCommandChannelOption,
+  SlashCommandStringOption,
+  SlashCommandUserOption,
+} from '@discordjs/builders';
 import { SlashCommandOptionBase } from '@discordjs/builders/dist/interactions/slashCommands/mixins/CommandOptionBase';
 import CommandConfig from './CommandConfig';
 import Executable from './Executable';
@@ -81,6 +86,8 @@ export default class Command implements Executable {
       .setDescription(this.description);
     this.commandOptions.forEach((opt) => {
       if (opt instanceof SlashCommandStringOption) this.slashCommand.addStringOption(opt);
+      else if (opt instanceof SlashCommandChannelOption) this.slashCommand.addChannelOption(opt);
+      else if (opt instanceof SlashCommandUserOption) this.slashCommand.addUserOption(opt);
     });
   }
 

@@ -25,7 +25,14 @@ export default class DiscordBot {
   public shorthands: Record<string, Shorthand>;
 
   constructor(commands: Command[] = [], shorthands: Shorthand[] = []) {
-    this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+    this.client = new Client({
+      intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.GUILD_VOICE_STATES,
+      ],
+    });
     this.commands = this.executableArrayToRecord<Command>(commands);
     this.shorthands = this.executableArrayToRecord<Shorthand>(shorthands);
 
@@ -46,6 +53,7 @@ export default class DiscordBot {
     });
 
     this.client.on('interactionCreate', async (interaction: CommandInteraction) => {
+      if (interaction.isCommand() === false) return;
       const executable = this.findMatchingExecutable(interaction.commandName);
       if (executable) {
         await executable.go(interaction)
