@@ -53,6 +53,7 @@ export default class Command implements Executable {
    * handles error on a basic level
    */
   handleError(interaction: CommandInteraction, error: Error): Promise<void> {
+    console.error(error);
     return interaction.reply(error.message);
   }
 
