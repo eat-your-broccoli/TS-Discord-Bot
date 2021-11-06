@@ -28,6 +28,9 @@
         }
       }
 
+    },
+    "radio": {
+      "description": "Play a song 🎵"
     }
   }
 }
