@@ -32,6 +32,8 @@ export default class DiscordBot {
         Intents.FLAGS.GUILD_VOICE_STATES,
       ],
     });
+
+    commands.forEach((c) => { c.client = this.client; });
     this.commands = this.executableArrayToRecord<Command>(commands);
     this.shorthands = this.executableArrayToRecord<Shorthand>(shorthands);
 
