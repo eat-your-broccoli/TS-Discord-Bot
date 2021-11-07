@@ -25,3 +25,7 @@ const bot = new DiscordBot(commands, []);
 bot.start(process.env.DISCORD_BOT_TOKEN);
 
 globals.bot = bot;
+
+process.on('unhandledError', (error: Error) => {
+  console.error('unhandled error: ', error);
+});
