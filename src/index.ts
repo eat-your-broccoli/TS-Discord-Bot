@@ -7,6 +7,7 @@ import globals from './utility/Globals';
 import LeaveCommand from './commands/util/LeaveCommand';
 import RadioCommand from './commands/radio/RadioCommand';
 import YoutubeTestCommand from './commands/develop/YoutubeTestCommand';
+import QueueCommand from './commands/radio/QueueCommand';
 
 const commands = [
   new HelpCommand(),
@@ -14,6 +15,7 @@ const commands = [
   new JoinCommand(),
   new LeaveCommand(),
   new RadioCommand(),
+  new QueueCommand(),
 ];
 
 if (process.env.NODE_ENV.indexOf('dev') >= 0) {
