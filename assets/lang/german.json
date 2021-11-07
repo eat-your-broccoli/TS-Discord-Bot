@@ -30,7 +30,10 @@
 
     },
     "radio": {
-      "description": "Play a song 🎵"
+      "description": "Play a song 🎵",
+      "queue": {
+        "description": "Infos über die nächsten Lieder"
+      }
     }
   }
 }
