@@ -38,8 +38,6 @@ function createAudioPlayer(guildId: string): AudioPlayer {
   player.on('error', (error) => {
     if (error instanceof AudioPlayerError) console.error(`Player Error: ${error.message} with resource ${error.resource.metadata}`);
     else console.error(`Player Error: ${error}`);
-    const queue = getSongQueue(guildId);
-    if (queue) playNextSongInQueue(player, queue).catch((err) => console.error('Error: playing next song after error failed: ', err));
   });
 
   return player;

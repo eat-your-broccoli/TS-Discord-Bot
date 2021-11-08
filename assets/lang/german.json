@@ -39,6 +39,9 @@
       },
       "pause": {
         "description": "Pause the audio stream"
+      },
+      "volume": {
+        "description": "Set the volume"
       }
     }
   }

@@ -15,7 +15,7 @@ export default class Song {
   public async loadResource(): Promise<AudioResource> {
     if (!this.resource) {
       const stream = await createYtSteam(this.link);
-      this.resource = createAudioResource(stream);
+      this.resource = createAudioResource(stream, { inlineVolume: true });
     }
 
     return this.resource;

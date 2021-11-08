@@ -1,7 +1,7 @@
 import { Client, CommandInteraction } from 'discord.js';
 import {
   SlashCommandBuilder,
-  SlashCommandChannelOption,
+  SlashCommandChannelOption, SlashCommandNumberOption,
   SlashCommandStringOption,
   SlashCommandUserOption,
 } from '@discordjs/builders';
@@ -95,6 +95,8 @@ export default class Command implements Executable {
       if (opt instanceof SlashCommandStringOption) this.slashCommand.addStringOption(opt);
       else if (opt instanceof SlashCommandChannelOption) this.slashCommand.addChannelOption(opt);
       else if (opt instanceof SlashCommandUserOption) this.slashCommand.addUserOption(opt);
+      else if (opt instanceof SlashCommandNumberOption) this.slashCommand.addNumberOption(opt);
+      else { throw new Error(`unsupported command option: ${opt.type}`); }
     });
   }
 

@@ -10,6 +10,7 @@ import YoutubeTestCommand from './commands/develop/YoutubeTestCommand';
 import QueueCommand from './commands/radio/QueueCommand';
 import SkipCommand from './commands/radio/SkipCommand';
 import PauseCommand from './commands/radio/PauseCommand';
+import VolumeCommand from './commands/radio/VolumeCommand';
 
 const commands = [
   new HelpCommand(),
@@ -20,6 +21,7 @@ const commands = [
   new QueueCommand(),
   new SkipCommand(),
   new PauseCommand(),
+  new VolumeCommand(),
 ];
 
 if (process.env.NODE_ENV.indexOf('dev') >= 0) {
