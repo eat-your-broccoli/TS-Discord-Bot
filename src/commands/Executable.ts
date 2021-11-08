@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 import type DiscordBot from '../DiscordBot';
 
 /**
@@ -6,6 +6,7 @@ import type DiscordBot from '../DiscordBot';
  */
 export default interface Executable {
   prefix: string
-  execute: (message: Message) => Promise<void>
+  execute: (interaction: CommandInteraction) => Promise<void>
+  go: (interaction: CommandInteraction) => Promise<any>
   configure?: ({ context }: { context: DiscordBot }) => void
 }

@@ -1,34 +1,35 @@
 // eslint-disable-next-line no-unused-vars
 import {
-  DiscordAPIError, Message, MessageAttachment, MessageEmbed, TextChannel,
+  ColorResolvable,
+  DiscordAPIError, Message, MessageAttachment, MessageEmbed, TextBasedChannels, TextChannel,
 } from 'discord.js';
 
 import EmbedCategory from './EmbedCategory';
 
-export default class MessageHandler {
+export default class Messages {
   /**
      * send a string text in a channel
-     * @param {Message} msg
+     * @param {Message} m
      * @param {String} outgoing
      * @param {Channel || null} channel
      */
   static sendSimpleText(
-    msg: Message, outgoing: string, channel?: TextChannel,
+    m: Message, outgoing: string, channel?: TextChannel,
   ): Promise<Message> {
     if (channel) {
       return channel.send(outgoing);
     }
-    return msg.channel.send(outgoing);
+    return m.channel.send(outgoing);
   }
 
   /**
    * send a string text in a channel
-   * @param {Message} msg
+   * @param {Message} m
    * @param text
    * @return {Promise<Message>}
    */
-  static replySimpleText(msg: Message, text: string): Promise<Message> {
-    return msg.reply(text);
+  static replySimpleText(m: Message, text: string): Promise<Message> {
+    return m.reply(text);
   }
 
   /**
@@ -45,7 +46,7 @@ export default class MessageHandler {
     title: string,
     description?: string,
     categories: EmbedCategory[],
-    color?: string
+    color?: ColorResolvable
   }): MessageEmbed {
     const richText = new MessageEmbed();
     if (title && typeof title === 'string') {
@@ -88,9 +89,9 @@ export default class MessageHandler {
     msg: Message, richText: MessageEmbed, channel?: TextChannel,
   ): Promise<Message> {
     if (channel) {
-      return channel.send(richText);
+      return channel.send({ embeds: [richText] });
     }
-    return msg.channel.send(richText);
+    return msg.channel.send({ embeds: [richText] });
   }
 
   /**
@@ -100,7 +101,7 @@ export default class MessageHandler {
      * @return {Promise<Message>}
      */
   static replyRichText(msg: Message, richText: MessageEmbed): Promise<Message> {
-    return msg.reply(richText);
+    return msg.reply({ embeds: [richText] });
   }
 
   /**
@@ -128,23 +129,23 @@ export default class MessageHandler {
   static arrayToString(array: string[], escape = true): string {
     let str = '';
     array.forEach((item) => {
-      str += `${escape ? MessageHandler.toInlineBlock(item) : item}\n`;
+      str += `${escape ? Messages.toInlineBlock(item) : item}\n`;
     });
     return str;
   }
 
   /**
-     *
-     * @param {Message }msg
-     * @param {MessageEmbed || string }text
-     * @param {MessageAttachment} attachment
-     * @param {TextChannel} channel
-     */
+   *
+   * @param {Message }msg
+   * @param {MessageEmbed} reply
+   * @param {MessageAttachment} attachment
+   * @param {TextChannel} channel
+   */
   static async sendAttachment(
-    msg: Message, text: MessageChannel, attachment: MessageAttachment, channel?: TextChannel,
+    msg: Message, reply: MessageEmbed, attachment: MessageAttachment, channel?: TextChannel,
   ): Promise<Message> {
-    const sendingChannel = channel || msg.channel;
-    return sendingChannel.send(text, attachment)
+    const sendingChannel: TextBasedChannels = channel || msg.channel;
+    return sendingChannel.send({ embeds: [reply], files: [attachment] })
       .catch((e: DiscordAPIError) => {
         if (e && e.code === 40005) {
           throw new Error('Discord only supports up to 8MB files, maybe reduce quality');
