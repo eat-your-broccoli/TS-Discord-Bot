@@ -30,7 +30,19 @@
 
     },
     "radio": {
-      "description": "Play a song 🎵"
+      "description": "Play a song 🎵",
+      "queue": {
+        "description": "Infos über die nächsten Lieder"
+      },
+      "skip": {
+        "description": "Skip the current song"
+      },
+      "pause": {
+        "description": "Pause the audio stream"
+      },
+      "volume": {
+        "description": "Set the volume"
+      }
     }
   }
 }

@@ -1,14 +1,20 @@
-import { CommandInteraction, GuildMember, VoiceChannel } from 'discord.js';
+import {
+  CommandInteraction, GuildMember, TextChannel, VoiceChannel,
+} from 'discord.js';
 import { SlashCommandStringOption } from '@discordjs/builders';
-import * as ytdl from 'ytdl-core';
-import { AudioPlayerStatus, createAudioResource } from '@discordjs/voice';
+import { entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
-import getAudioPlayer from '../../utility/Radio/getAudioPlayer';
+import { getOrCreateAudioPlayer } from '../../utility/Radio/getAudioPlayer';
 import join from '../../utility/Voice/join';
-import createYtSteam from '../../utility/Radio/createYtSteam';
+import Song from '../../utility/Radio/Song';
+import { getOrCreateSongQueue } from '../../utility/Radio/getSongQueue';
+import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
 
+/**
+ * adds a song to the queue
+ */
 export default class RadioCommand extends Command {
   commands: Record<string, Command>;
 
@@ -20,9 +26,8 @@ export default class RadioCommand extends Command {
     super('play', 'radio');
     this.lang = new ScopedLanguageHandler('commands.radio');
     this.description = this.lang.get('description');
-    this.usage = `${this.prefix} [command]`;
-    this.example = `${this.prefix}
-    \n${this.prefix} [command]`;
+    this.usage = `${this.prefix}`;
+    this.example = `${this.prefix}`;
 
     this.commandOptions = [
       new SlashCommandStringOption()
@@ -42,28 +47,38 @@ export default class RadioCommand extends Command {
     }
     if (channel == null) throw new Error('you are not in a VoiceChannel');
 
-    const player = getAudioPlayer(interaction.guildId);
+    const song = await Song.fromYoutube(link);
 
-    const songInfo = await ytdl.getBasicInfo(link);
-    if (!songInfo) throw new Error('no video found');
-    await interaction.reply(`Now playing: ${songInfo}`);
+    const queue = getOrCreateSongQueue(
+      interaction.guildId, interaction.channel as TextChannel, channel,
+    );
 
-    const stream = await createYtSteam(link);
+    queue.songs.push(song);
+    await interaction.reply(`Added \`${song.title}\` to queue`);
+    const player = getOrCreateAudioPlayer(interaction.guildId);
 
-    const resource = createAudioResource(stream);
+    if (!queue.isPlaying) {
+      queue.isPlaying = true;
+      const connection = join(queue.voice);
+      queue.connection = connection;
 
-    const connection = join(channel);
-    connection.subscribe(player);
-    player.play(resource);
-
-    player.on(AudioPlayerStatus.Idle, () => {
-      console.log('leaving now');
-      connection.disconnect();
-    });
-
-    player.on('error', (err) => {
-      console.log(`leaving now due to error: ${err}`);
-      connection.disconnect();
-    });
+      // https://discordjs.guide/voice/voice-connections.html#handling-disconnects
+      connection.on(VoiceConnectionStatus.Disconnected, async () => {
+        console.log('connection entered state disconnected');
+        try {
+          await Promise.race([
+            entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+            entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+          ]);
+          // Seems to be reconnecting to a new channel - ignore disconnect
+        } catch (error) {
+          console.log('connection seems to be unrecoverable. destroying connection');
+          // Seems to be a real disconnect which SHOULDN'T be recovered from
+          connection.destroy();
+        }
+      });
+      connection.subscribe(player);
+      await playNextSongInQueue(player, queue);
+    }
   }
 }

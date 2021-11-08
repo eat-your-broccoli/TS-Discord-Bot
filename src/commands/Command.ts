@@ -1,7 +1,7 @@
-import { CommandInteraction } from 'discord.js';
+import { Client, CommandInteraction } from 'discord.js';
 import {
   SlashCommandBuilder,
-  SlashCommandChannelOption,
+  SlashCommandChannelOption, SlashCommandNumberOption,
   SlashCommandStringOption,
   SlashCommandUserOption,
 } from '@discordjs/builders';
@@ -34,6 +34,8 @@ export default class Command implements Executable {
 
   public commandOptions : SlashCommandOptionBase[] = [];
 
+  public client: Client;
+
   constructor(prefix: string, category = 'misc', config: CommandConfig = new CommandConfig()) {
     this.prefix = prefix;
     this.commandName = prefix;
@@ -52,9 +54,13 @@ export default class Command implements Executable {
   /**
    * handles error on a basic level
    */
-  handleError(interaction: CommandInteraction, error: Error): Promise<void> {
+  handleError(interaction: CommandInteraction, error: Error): void {
     console.error(error);
-    return interaction.reply(error.message);
+    if (interaction.replied) {
+      interaction.channel.send(error.message).catch();
+      return;
+    }
+    interaction.reply(error.message).catch();
   }
 
   /**
@@ -89,6 +95,8 @@ export default class Command implements Executable {
       if (opt instanceof SlashCommandStringOption) this.slashCommand.addStringOption(opt);
       else if (opt instanceof SlashCommandChannelOption) this.slashCommand.addChannelOption(opt);
       else if (opt instanceof SlashCommandUserOption) this.slashCommand.addUserOption(opt);
+      else if (opt instanceof SlashCommandNumberOption) this.slashCommand.addNumberOption(opt);
+      else { throw new Error(`unsupported command option: ${opt.type}`); }
     });
   }
 

@@ -7,5 +7,7 @@ export default function createYtStream(link: string) : Opus.Encoder | FFmpeg {
     filter: 'audioonly',
     opusEncoded: true,
     encoderArgs: ['-af', 'bass=g=10,dynaudnorm=f=200'],
+    // eslint-disable-next-line no-bitwise
+    highWaterMark: 1 << 26,
   });
 }
