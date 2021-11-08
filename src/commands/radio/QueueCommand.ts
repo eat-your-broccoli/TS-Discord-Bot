@@ -6,7 +6,11 @@ import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 
 import { getSongQueue } from '../../utility/Radio/getSongQueue';
+import Messages from '../../utility/Messages/Messages';
 
+/**
+ * displays the songs currently in the audio queue
+ */
 export default class QueueCommand extends Command {
   commands: Record<string, Command>;
 
@@ -36,14 +40,15 @@ export default class QueueCommand extends Command {
       return;
     }
     message.addField('Currently playing', `${queue.currentSong?.title}`);
-    message.addField('Songs in Queue', `There are ${queue.songs.length} songs in queue`);
+    message.addField('Songs in Queue', `There are ${queue.songs.length > 0 ? queue.songs.length : 'no'} songs in queue`);
 
     // take the next 5 or less songs
     // take only their name
     // and join them to a string, separated by a line break
-    const upcomingSongs = queue.songs.splice(0, Math.min(5, queue.songs.length)).map((s) => s.title).join('\n');
+    const upcomingSongs = queue.songs.splice(0, Math.min(5, queue.songs.length)).map((s) => Messages.toInlineBlock(s.title)).join('\n');
     message.addField('Upcoming Songs', upcomingSongs || 'No upcoming songs');
 
+    message.setColor('BLUE');
     await interaction.reply({ embeds: [message] });
   }
 }

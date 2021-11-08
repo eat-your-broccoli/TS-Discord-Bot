@@ -6,12 +6,15 @@ import { entersState, VoiceConnectionStatus } from '@discordjs/voice';
 import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
-import getAudioPlayer from '../../utility/Radio/getAudioPlayer';
+import { getOrCreateAudioPlayer } from '../../utility/Radio/getAudioPlayer';
 import join from '../../utility/Voice/join';
 import Song from '../../utility/Radio/Song';
 import { getOrCreateSongQueue } from '../../utility/Radio/getSongQueue';
 import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
 
+/**
+ * adds a song to the queue
+ */
 export default class RadioCommand extends Command {
   commands: Record<string, Command>;
 
@@ -51,8 +54,8 @@ export default class RadioCommand extends Command {
     );
 
     queue.songs.push(song);
-    await interaction.reply('added song to queue');
-    const player = getAudioPlayer(interaction.guildId);
+    await interaction.reply(`Added \`${song.title}\` to queue`);
+    const player = getOrCreateAudioPlayer(interaction.guildId);
 
     if (!queue.isPlaying) {
       queue.isPlaying = true;
