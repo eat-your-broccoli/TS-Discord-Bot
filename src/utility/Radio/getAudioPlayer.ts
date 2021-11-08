@@ -1,6 +1,8 @@
 import { AudioPlayer, AudioPlayerError, AudioPlayerStatus } from '@discordjs/voice';
 import { getSongQueue } from './getSongQueue';
 import playNextSongInQueue from './playNextSongInQueue';
+// eslint-disable-next-line import/no-cycle
+import stopPlayer from './stopPlayer';
 
 const players: Record<string, AudioPlayer> = {};
 
@@ -16,10 +18,12 @@ function createAudioPlayer(guildId: string): AudioPlayer {
     if (queue) {
       console.log(`members in the voice channel: ${queue.voice.members.size}`);
       if (queue.voice.members.size === 1) {
-        console.log('there are no active connections in the voice channel.');
+        console.log('there are no active connections (excluding me) in the voice channel.');
+        stopPlayer(guildId);
       } else playNextSongInQueue(player, queue).catch((err) => console.error('Error: playing next song in idle failed: ', err));
     } else {
       console.log('queue is empty. TODO close connection');
+      stopPlayer(guildId);
     }
   });
 
