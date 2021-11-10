@@ -1,6 +1,7 @@
 import { AudioPlayer } from '@discordjs/voice';
 import Queue from './Queue';
-import { deleteQueue } from './getSongQueue';
+// eslint-disable-next-line import/no-cycle
+import stopPlayer from './stopPlayer';
 
 export default async function playNextSongInQueue(player: AudioPlayer, queue: Queue):
 Promise<void> {
@@ -13,8 +14,6 @@ Promise<void> {
     player.play(song.resource);
   } else {
     console.log('no more songs. stop player');
-    queue.setPlaying(false);
-    deleteQueue(queue.guildId);
-    player.stop();
+    stopPlayer(queue.guildId);
   }
 }
