@@ -1,5 +1,5 @@
 import {
-  CommandInteraction,
+  CommandInteraction, MessageEmbed,
 } from 'discord.js';
 import Command from '../Command';
 import Shorthand from '../Shorthand';
@@ -33,13 +33,19 @@ export default class SkipCommand extends Command {
     const queue = getSongQueue(interaction.guildId);
     const player = getAudioPlayer(interaction.guildId);
     if (!queue || !queue.isPlaying || !player) {
-      const message = 'Currently there is no song played that can be skipped';
-      await interaction.reply({ content: message, ephemeral: true });
+      const message = new MessageEmbed();
+      message.setTitle('Currently there is no song played that can be skipped');
+      message.setColor('YELLOW');
+      await interaction.reply({ embeds: [message], ephemeral: true });
       return;
     }
 
     const { currentSong } = queue;
     await playNextSongInQueue(player, queue);
-    await interaction.reply({ content: `${currentSong.title} skipped`, ephemeral: true });
+    const message = new MessageEmbed();
+    message.setTitle('Success');
+    message.setDescription(`${currentSong.title} skipped`);
+    message.setColor('GREEN');
+    await interaction.reply({ embeds: [message], ephemeral: true });
   }
 }

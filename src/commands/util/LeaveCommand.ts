@@ -1,5 +1,5 @@
 import {
-  CommandInteraction,
+  CommandInteraction, MessageEmbed,
 } from 'discord.js';
 import Command from '../Command';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
@@ -17,7 +17,15 @@ export default class LeaveCommand extends Command {
   }
 
   async execute(interaction: CommandInteraction): Promise<void> {
-    await leaveVoiceChannel(interaction.guild);
-    await interaction.reply('Okay :( If you don\'t want me...');
+    const channelId = await leaveVoiceChannel(interaction.guild);
+    const message = new MessageEmbed();
+    if (channelId == null) {
+      message.setTitle('I wasn\'t even in a channel, man :(');
+      message.setColor('YELLOW');
+    } else {
+      message.setTitle('Left channel');
+      message.setColor('GREEN');
+    }
+    await interaction.reply({ embeds: [message], ephemeral: true });
   }
 }

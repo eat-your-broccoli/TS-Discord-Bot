@@ -1,5 +1,5 @@
 import {
-  CommandInteraction, GuildMember, TextChannel, VoiceChannel,
+  CommandInteraction, GuildMember, MessageEmbed, TextChannel, VoiceChannel,
 } from 'discord.js';
 import { SlashCommandStringOption } from '@discordjs/builders';
 import { entersState, VoiceConnectionStatus } from '@discordjs/voice';
@@ -11,6 +11,8 @@ import join from '../../utility/Voice/join';
 import Song from '../../utility/Radio/Song';
 import { getOrCreateSongQueue } from '../../utility/Radio/getSongQueue';
 import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
+import Messages from '../../utility/Messages/Messages';
+import stopPlayer from '../../utility/Radio/stopPlayer';
 
 /**
  * adds a song to the queue
@@ -54,7 +56,11 @@ export default class RadioCommand extends Command {
     );
 
     queue.songs.push(song);
-    await interaction.reply(`Added \`${song.title}\` to queue`);
+    const message = new MessageEmbed();
+    message.setTitle('Added Song');
+    message.setDescription(`Added ${Messages.toInlineBlock(song.title)} to queue`);
+    message.setColor('GREEN');
+    await interaction.reply({ embeds: [message] });
     const player = getOrCreateAudioPlayer(interaction.guildId);
 
     if (!queue.isPlaying) {
@@ -74,6 +80,7 @@ export default class RadioCommand extends Command {
         } catch (error) {
           console.log('connection seems to be unrecoverable. destroying connection');
           // Seems to be a real disconnect which SHOULDN'T be recovered from
+          stopPlayer(interaction.guildId);
           connection.destroy();
         }
       });

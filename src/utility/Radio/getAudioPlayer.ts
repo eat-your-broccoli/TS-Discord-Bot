@@ -1,5 +1,6 @@
 import { AudioPlayer, AudioPlayerError, AudioPlayerStatus } from '@discordjs/voice';
 import { getSongQueue } from './getSongQueue';
+// eslint-disable-next-line import/no-cycle
 import playNextSongInQueue from './playNextSongInQueue';
 // eslint-disable-next-line import/no-cycle
 import stopPlayer from './stopPlayer';
@@ -22,7 +23,7 @@ function createAudioPlayer(guildId: string): AudioPlayer {
         stopPlayer(guildId);
       } else playNextSongInQueue(player, queue).catch((err) => console.error('Error: playing next song in idle failed: ', err));
     } else {
-      console.log('queue is empty. TODO close connection');
+      console.log('queue is empty. stopping player');
       stopPlayer(guildId);
     }
   });
