@@ -12,6 +12,7 @@ import Song from '../../utility/Radio/Song';
 import { getOrCreateSongQueue } from '../../utility/Radio/getSongQueue';
 import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
 import Messages from '../../utility/Messages/Messages';
+import stopPlayer from '../../utility/Radio/stopPlayer';
 
 /**
  * adds a song to the queue
@@ -79,6 +80,7 @@ export default class RadioCommand extends Command {
         } catch (error) {
           console.log('connection seems to be unrecoverable. destroying connection');
           // Seems to be a real disconnect which SHOULDN'T be recovered from
+          stopPlayer(interaction.guildId);
           connection.destroy();
         }
       });
