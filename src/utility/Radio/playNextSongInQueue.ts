@@ -12,6 +12,7 @@ Promise<void> {
       await song.loadResource();
     }
     player.play(song.resource);
+    song.resource.volume.setVolume(0.2);
   } else {
     console.log('no more songs. stop player');
     stopPlayer(queue.guildId);
