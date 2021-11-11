@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, MessageEmbed } from 'discord.js';
 
 import Command from '../Command';
 import Shorthand from '../Shorthand';
@@ -31,19 +31,34 @@ export default class PauseCommand extends Command {
     const queue = getSongQueue(interaction.guildId);
     const player = getAudioPlayer(interaction.guildId);
     if (!queue || !queue.isPlaying || !player) {
-      const message = 'Currently there is no song played that can be paused';
-      await interaction.reply({ content: message, ephemeral: true });
+      const message = new MessageEmbed();
+      message.setTitle('Error');
+      message.setDescription('There is currently no player running');
+      message.setColor('YELLOW');
+      await interaction.reply({ embeds: [message], ephemeral: true });
       return;
     }
 
     if (player.state.status === 'playing') {
       player.pause();
-      await interaction.reply({ content: 'Paused player' });
+      const message = new MessageEmbed();
+      message.setTitle('Success');
+      message.setDescription('Paused player');
+      message.setColor('GREEN');
+      await interaction.reply({ embeds: [message], ephemeral: true });
     } else if (player.state.status === 'paused') {
       player.unpause();
-      await interaction.reply({ content: 'Unpaused player' });
+      player.pause();
+      const message = new MessageEmbed();
+      message.setTitle('Success');
+      message.setDescription('Unpaused player');
+      message.setColor('GREEN');
     } else {
-      await interaction.reply({ content: `Player is in unhandled state: ${player.state.status}` });
+      player.pause();
+      const message = new MessageEmbed();
+      message.setTitle('Error');
+      message.setDescription(`Player is in unhandled state: ${player.state.status}`);
+      message.setColor('GREEN');
     }
   }
 }
