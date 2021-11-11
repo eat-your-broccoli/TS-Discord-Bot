@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, MessageEmbed } from 'discord.js';
+import { Client, CommandInteraction } from 'discord.js';
 import {
   SlashCommandBuilder,
   SlashCommandChannelOption, SlashCommandNumberOption,
@@ -56,15 +56,11 @@ export default class Command implements Executable {
    */
   handleError(interaction: CommandInteraction, error: Error): void {
     console.error(error);
-    const message = new MessageEmbed();
-    message.setTitle('Error');
-    message.setDescription(error.message);
-    message.setColor('RED');
     if (interaction.replied) {
-      interaction.channel.send({ embeds: [message] }).catch();
+      interaction.channel.send(error.message).catch();
       return;
     }
-    interaction.reply({ embeds: [message], ephemeral: true }).catch();
+    interaction.reply(error.message).catch();
   }
 
   /**

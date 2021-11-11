@@ -34,7 +34,6 @@ export default class QueueCommand extends Command {
     const queue = getSongQueue(interaction.guildId);
     const message = new MessageEmbed();
     message.setTitle('Song Queue');
-    message.setColor('BLUE');
     if (!queue) {
       message.addField('Songs', 'there are no songs in the queue', false);
       await interaction.reply({ embeds: [message] });
@@ -49,6 +48,7 @@ export default class QueueCommand extends Command {
     const upcomingSongs = queue.songs.splice(0, Math.min(5, queue.songs.length)).map((s) => Messages.toInlineBlock(s.title)).join('\n');
     message.addField('Upcoming Songs', upcomingSongs || 'No upcoming songs');
 
+    message.setColor('BLUE');
     await interaction.reply({ embeds: [message] });
   }
 }

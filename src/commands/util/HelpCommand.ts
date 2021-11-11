@@ -19,7 +19,8 @@ export default class HelpCommand extends Command {
     this.lang = new ScopedLanguageHandler('commands.util.help');
     this.description = this.lang.get('description');
     this.usage = `${this.prefix} [command]`;
-    this.example = `${this.prefix} \n${this.prefix} [command]`;
+    this.example = `${this.prefix}
+    \n${this.prefix} [command]`;
     this.commandOptions = [
       new SlashCommandStringOption().setName('commandname').setDescription('name of the command you want to know more about')
         .setRequired(false),
@@ -31,8 +32,7 @@ export default class HelpCommand extends Command {
     let reply: MessageEmbed;
     if (commandName) reply = this.commandHelp(commandName);
     else reply = this.generalHelp();
-    reply.setColor('BLUE');
-    await interaction.reply({ embeds: [reply], ephemeral: true });
+    await interaction.reply({ embeds: [reply] });
   }
 
   /**
@@ -45,14 +45,10 @@ export default class HelpCommand extends Command {
       // error
       throw new Error(this.lang.get('error.unknownCommand', { commandName: commandStr }));
     } else {
-      const message = new MessageEmbed();
-      message.setTitle(`help: ${Messages.toInlineBlock(commandStr)}`);
-      message.setColor('BLUE');
-      command.getHelpEmbedCategory().forEach((c) => {
-        message.addField(c.title, c.text, c.inline);
-      });
-
-      return message;
+      const title = command.commandName;
+      const { description } = command;
+      const categories = command.getHelpEmbedCategory();
+      return Messages.createRichText({ title, description, categories });
     }
   }
 

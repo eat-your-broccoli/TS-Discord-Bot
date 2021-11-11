@@ -1,8 +1,6 @@
-import type { Guild } from 'discord.js';
-import { getVoiceConnection } from '@discordjs/voice';
+import type { Guild, GuildMember } from 'discord.js';
 
-export default function leaveVoiceChannel(guild: Guild): string {
-  const vc = getVoiceConnection(guild.id);
-  vc?.destroy();
-  return vc?.joinConfig.channelId;
+export default function leaveVoiceChannel(guild: Guild): Promise<GuildMember> {
+  console.log('voice:', guild.me.voice);
+  return guild.me.voice.disconnect();
 }

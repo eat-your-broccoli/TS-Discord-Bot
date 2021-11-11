@@ -1,5 +1,5 @@
 import {
-  CommandInteraction, GuildMember, MessageEmbed, VoiceChannel,
+  CommandInteraction, GuildMember, VoiceChannel,
 } from 'discord.js';
 import { SlashCommandChannelOption } from '@discordjs/builders';
 import Command from '../Command';
@@ -33,23 +33,14 @@ export default class JoinCommand extends Command {
       }
     }
     if (channel == null) {
-      const message = new MessageEmbed();
-      message.setTitle('No channel found to join');
-      message.setColor('YELLOW');
-      await interaction.reply({ embeds: [message], ephemeral: true });
+      await interaction.reply('no channel found to join');
       return;
     }
     if (!(channel instanceof VoiceChannel)) {
-      const message = new MessageEmbed();
-      message.setTitle('Channel is not a voice channel');
-      message.setColor('RED');
-      await interaction.reply({ embeds: [message], ephemeral: true });
+      await interaction.reply('channel is no VoiceChannel');
       return;
     }
     join(channel);
-    const message = new MessageEmbed();
-    message.setTitle('Joined channel ✌');
-    message.setColor('GREEN');
-    await interaction.reply({ embeds: [message], ephemeral: true });
+    await interaction.reply('Success ✌');
   }
 }
