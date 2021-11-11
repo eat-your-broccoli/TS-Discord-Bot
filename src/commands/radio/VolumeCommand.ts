@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, MessageEmbed } from 'discord.js';
 
 import { AudioPlayerPlayingState } from '@discordjs/voice';
 import { SlashCommandNumberOption } from '@discordjs/builders';
@@ -36,23 +36,40 @@ export default class VolumeCommand extends Command {
   async execute(interaction: CommandInteraction): Promise<void> {
     const player = getAudioPlayer(interaction.guildId);
     if (!player) {
-      await interaction.reply({ content: 'No player active', ephemeral: true });
+      const message = new MessageEmbed();
+      message.setTitle('No player active');
+      message.setColor('YELLOW');
+      await interaction.reply({ embeds: [message], ephemeral: true });
       return;
     }
     const channel = getVoiceChannel(interaction);
     const isInSameChannel = !!player.playable.find((c) => c.joinConfig.channelId === channel?.id);
     if (!channel || isInSameChannel === false) {
-      await interaction.reply({ content: 'You have to be in the same channel as the player', ephemeral: true });
+      const message = new MessageEmbed();
+      message.setTitle('Error');
+      message.setDescription('You have to be in the same channel as the player');
+      message.setColor('RED');
+      await interaction.reply({ embeds: [message], ephemeral: true });
       return;
     }
 
     const vol = interaction.options.getNumber('volume');
-    if (vol === undefined || vol < 0 || vol > 200) {
-      await interaction.reply({ content: `Invalid vol: ${vol}`, ephemeral: true });
+    if (vol === undefined || vol < 0 || vol > 100) {
+      const message = new MessageEmbed();
+      message.setTitle('Error');
+      message.setDescription('Volume has to be between 0 and 100');
+      message.setColor('RED');
+      await interaction.reply({ embeds: [message], ephemeral: true });
       return;
     }
 
-    (player.state as AudioPlayerPlayingState).resource.volume.setVolumeLogarithmic(vol / 100);
-    await interaction.reply({ content: `player volume set to: ${vol}`, ephemeral: true });
+    const newVol = vol / 1000;
+
+    (player.state as AudioPlayerPlayingState).resource.volume.setVolumeDecibels(newVol);
+    const message = new MessageEmbed();
+    message.setTitle('Success');
+    message.setDescription(`Volume set to ${newVol}`);
+    message.setColor('RED');
+    await interaction.reply({ embeds: [message], ephemeral: true });
   }
 }
