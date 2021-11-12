@@ -1,5 +1,6 @@
 import * as sqlite from 'sqlite3';
 import { AudioPlayerPlayingState } from '@discordjs/voice';
+// eslint-disable-next-line import/no-cycle
 import getAudioPlayer from './getAudioPlayer';
 
 const table = 'volume';
@@ -28,7 +29,7 @@ export default class VolumeManager {
       await this.setInDB(guildId, defaultVolume);
       return defaultVolume;
     }
-    return (val.vol);
+    return ((val.vol) / 100);
   }
 
   public static async setInDB(guildId: string, volume: number): Promise<void> {
