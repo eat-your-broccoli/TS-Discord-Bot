@@ -1,12 +1,9 @@
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 
-import { AudioPlayerPlayingState } from '@discordjs/voice';
 import { SlashCommandNumberOption } from '@discordjs/builders';
 import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
-import getAudioPlayer from '../../utility/Radio/getAudioPlayer';
-import getVoiceChannel from '../../utility/Voice/getVoiceChannel';
 import VolumeManager from '../../utility/Radio/VolumeManager';
 
 /**
@@ -58,32 +55,10 @@ export default class VolumeCommand extends Command {
 
     await VolumeManager.set(interaction.guildId, vol);
 
-    const player = getAudioPlayer(interaction.guildId);
-    if (!player) {
-      const message = new MessageEmbed();
-      message.setTitle('No player active');
-      message.setColor('YELLOW');
-      await interaction.reply({ embeds: [message], ephemeral: true });
-      return;
-    }
-    const channel = getVoiceChannel(interaction);
-    const isInSameChannel = !!player.playable.find((c) => c.joinConfig.channelId === channel?.id);
-    if (!channel || isInSameChannel === false) {
-      const message = new MessageEmbed();
-      message.setTitle('Error');
-      message.setDescription('You have to be in the same channel as the player');
-      message.setColor('RED');
-      await interaction.reply({ embeds: [message], ephemeral: true });
-      return;
-    }
-
-    const newVol = vol / 1000;
-
-    (player.state as AudioPlayerPlayingState).resource.volume.setVolumeDecibels(newVol);
     const message = new MessageEmbed();
     message.setTitle('Success');
-    message.setDescription(`Volume set to ${newVol}`);
-    message.setColor('RED');
+    message.setDescription(`Volume set to ${vol}`);
+    message.setColor('GREEN');
     await interaction.reply({ embeds: [message], ephemeral: true });
   }
 }
