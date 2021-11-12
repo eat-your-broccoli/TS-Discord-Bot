@@ -7,6 +7,7 @@ import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 import getAudioPlayer from '../../utility/Radio/getAudioPlayer';
 import getVoiceChannel from '../../utility/Voice/getVoiceChannel';
+import VolumeManager from '../../utility/Radio/VolumeManager';
 
 /**
  * pauses or resumes player
@@ -29,11 +30,34 @@ export default class VolumeCommand extends Command {
       new SlashCommandNumberOption()
         .setName('volume')
         .setDescription('the volume between 0 and 100')
-        .setRequired(true),
+        .setRequired(false),
     ];
   }
 
   async execute(interaction: CommandInteraction): Promise<void> {
+    const vol = interaction.options.getNumber('volume');
+
+    if (vol == null && vol !== 0) {
+      const currentVol = await VolumeManager.get(interaction.guildId);
+      const message = new MessageEmbed();
+      message.setTitle('Volume');
+      message.setDescription(`Volume is set to ${currentVol}`);
+      message.setColor('BLUE');
+      await interaction.reply({ embeds: [message], ephemeral: true });
+      return;
+    }
+
+    if (vol < 0 || vol > 100) {
+      const message = new MessageEmbed();
+      message.setTitle('Error');
+      message.setDescription('Volume has to be between 0 and 100');
+      message.setColor('RED');
+      await interaction.reply({ embeds: [message], ephemeral: true });
+      return;
+    }
+
+    await VolumeManager.set(interaction.guildId, vol);
+
     const player = getAudioPlayer(interaction.guildId);
     if (!player) {
       const message = new MessageEmbed();
@@ -48,16 +72,6 @@ export default class VolumeCommand extends Command {
       const message = new MessageEmbed();
       message.setTitle('Error');
       message.setDescription('You have to be in the same channel as the player');
-      message.setColor('RED');
-      await interaction.reply({ embeds: [message], ephemeral: true });
-      return;
-    }
-
-    const vol = interaction.options.getNumber('volume');
-    if (vol === undefined || vol < 0 || vol > 100) {
-      const message = new MessageEmbed();
-      message.setTitle('Error');
-      message.setDescription('Volume has to be between 0 and 100');
       message.setColor('RED');
       await interaction.reply({ embeds: [message], ephemeral: true });
       return;
