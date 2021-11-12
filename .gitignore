@@ -115,4 +115,7 @@ dist
 
 /dist
 
+# data directory for dbs and stuff
+!/data/volume/.gitkeep
+/data
 
