@@ -35,5 +35,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
+VOLUME ["/data"]
 RUN npm run build
 CMD [ "npm", "run", "start:docker" ]
+
+# TODO use offical node image

@@ -11,6 +11,9 @@ import QueueCommand from './commands/radio/QueueCommand';
 import SkipCommand from './commands/radio/SkipCommand';
 import PauseCommand from './commands/radio/PauseCommand';
 import VolumeCommand from './commands/radio/VolumeCommand';
+import VolumeManager from './utility/Radio/VolumeManager';
+
+VolumeManager.init();
 
 const commands = [
   new HelpCommand(),

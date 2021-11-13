@@ -1,12 +1,10 @@
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 
-import { AudioPlayerPlayingState } from '@discordjs/voice';
 import { SlashCommandNumberOption } from '@discordjs/builders';
 import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
-import getAudioPlayer from '../../utility/Radio/getAudioPlayer';
-import getVoiceChannel from '../../utility/Voice/getVoiceChannel';
+import VolumeManager from '../../utility/Radio/VolumeManager';
 
 /**
  * pauses or resumes player
@@ -29,32 +27,24 @@ export default class VolumeCommand extends Command {
       new SlashCommandNumberOption()
         .setName('volume')
         .setDescription('the volume between 0 and 100')
-        .setRequired(true),
+        .setRequired(false),
     ];
   }
 
   async execute(interaction: CommandInteraction): Promise<void> {
-    const player = getAudioPlayer(interaction.guildId);
-    if (!player) {
+    const vol = interaction.options.getNumber('volume');
+
+    if (vol == null && vol !== 0) {
+      const currentVol = await VolumeManager.get(interaction.guildId);
       const message = new MessageEmbed();
-      message.setTitle('No player active');
-      message.setColor('YELLOW');
-      await interaction.reply({ embeds: [message], ephemeral: true });
-      return;
-    }
-    const channel = getVoiceChannel(interaction);
-    const isInSameChannel = !!player.playable.find((c) => c.joinConfig.channelId === channel?.id);
-    if (!channel || isInSameChannel === false) {
-      const message = new MessageEmbed();
-      message.setTitle('Error');
-      message.setDescription('You have to be in the same channel as the player');
-      message.setColor('RED');
+      message.setTitle('Volume');
+      message.setDescription(`Volume is set to ${currentVol * 100}`);
+      message.setColor('BLUE');
       await interaction.reply({ embeds: [message], ephemeral: true });
       return;
     }
 
-    const vol = interaction.options.getNumber('volume');
-    if (vol === undefined || vol < 0 || vol > 100) {
+    if (vol < 0 || vol > 100) {
       const message = new MessageEmbed();
       message.setTitle('Error');
       message.setDescription('Volume has to be between 0 and 100');
@@ -63,13 +53,12 @@ export default class VolumeCommand extends Command {
       return;
     }
 
-    const newVol = vol / 1000;
+    await VolumeManager.set(interaction.guildId, vol);
 
-    (player.state as AudioPlayerPlayingState).resource.volume.setVolumeDecibels(newVol);
     const message = new MessageEmbed();
     message.setTitle('Success');
-    message.setDescription(`Volume set to ${newVol}`);
-    message.setColor('RED');
+    message.setDescription(`Volume set to ${vol}`);
+    message.setColor('GREEN');
     await interaction.reply({ embeds: [message], ephemeral: true });
   }
 }
