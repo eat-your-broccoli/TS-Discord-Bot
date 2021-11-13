@@ -16,3 +16,6 @@ Dockerfile
 
 dist
 ./dist
+
+data
+./data

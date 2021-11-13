@@ -47,6 +47,10 @@ Built destination is `build/`.
 
 A `Dockerfile` is provided. To build the docker image, run `docker build -t <YOUR DOCKER IMAGE TAG NAME> .`
 
+### Docker volume
+
+It is recommended to mount / bind a volume on `/data`.
+
 ## Development
 
 run `npm run start:dev` 
