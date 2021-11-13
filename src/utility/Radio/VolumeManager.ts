@@ -16,20 +16,22 @@ export default class VolumeManager {
   }
 
   public static async set(guildId: string, volume: number): Promise<void> {
+    const oldVol = await this.get(guildId);
+    if (volume > 40 && volume > oldVol + 20) throw new Error('Volume cannot be changed by steps larger than 20');
     await this.setInDB(guildId, volume);
     const player = getAudioPlayer(guildId);
     if (!player) return;
-    const newVol = volume / 100;
+    const newVol = this.volumeToDecimal(volume);
     (player.state as AudioPlayerPlayingState).resource.volume.setVolume(newVol);
   }
 
   public static async get(guildId: string): Promise<number> {
     const val: any = await this.getFromTable(guildId);
-    if (val == null && val !== 0) {
+    if (val == null) {
       await this.setInDB(guildId, defaultVolume);
-      return defaultVolume;
+      return (this.volumeToDecimal(defaultVolume));
     }
-    return ((val.vol) / 100);
+    return (this.volumeToDecimal(val.vol));
   }
 
   public static async setInDB(guildId: string, volume: number): Promise<void> {
@@ -56,5 +58,9 @@ export default class VolumeManager {
         resolve(row);
       });
     });
+  }
+
+  private static volumeToDecimal(vol: number) {
+    return vol / 100;
   }
 }

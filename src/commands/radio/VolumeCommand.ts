@@ -38,7 +38,7 @@ export default class VolumeCommand extends Command {
       const currentVol = await VolumeManager.get(interaction.guildId);
       const message = new MessageEmbed();
       message.setTitle('Volume');
-      message.setDescription(`Volume is set to ${currentVol}`);
+      message.setDescription(`Volume is set to ${currentVol * 100}`);
       message.setColor('BLUE');
       await interaction.reply({ embeds: [message], ephemeral: true });
       return;
