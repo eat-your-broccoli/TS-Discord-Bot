@@ -1,6 +1,6 @@
 {
   "name": "discord-ts",
-  "version": "1.0.4",
+  "version": "1.0.3",
   "description": "a Discord Bot written in TypeScript",
   "main": "index.ts",
   "scripts": {
