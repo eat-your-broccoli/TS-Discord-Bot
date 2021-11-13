@@ -1,15 +1,19 @@
 import * as sqlite from 'sqlite3';
 import { AudioPlayerPlayingState } from '@discordjs/voice';
+import fs from 'fs';
 // eslint-disable-next-line import/no-cycle
 import getAudioPlayer from './getAudioPlayer';
 
 const table = 'volume';
 
-const db = new sqlite.Database('./data/volume/volume.db');
+const dir = './data/volume/';
+let db: sqlite.Database;
 const defaultVolume = 35;
 
 export default class VolumeManager {
   public static async init(): Promise<void> {
+    if (fs.existsSync(dir)) fs.mkdirSync(dir);
+    db = new sqlite.Database(`${dir}volume.db`);
     db.serialize(() => {
       db.run(`CREATE TABLE IF NOT EXISTS ${table} (guildId TEXT UNIQUE, vol INTEGER)`);
     });
