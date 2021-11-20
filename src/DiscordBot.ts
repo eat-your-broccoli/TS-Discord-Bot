@@ -55,6 +55,7 @@ export default class DiscordBot {
 
     this.client.on('interactionCreate', async (interaction: CommandInteraction) => {
       if (interaction.isCommand() === false) return;
+
       const executable = this.findMatchingExecutable(interaction.commandName);
       if (executable) {
         await executable.go(interaction)

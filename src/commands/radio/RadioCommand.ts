@@ -13,6 +13,7 @@ import { getOrCreateSongQueue } from '../../utility/Radio/getSongQueue';
 import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
 import Messages from '../../utility/Messages/Messages';
 import stopPlayer from '../../utility/Radio/stopPlayer';
+import VolumeManager from '../../utility/Radio/VolumeManager';
 
 /**
  * adds a song to the queue
@@ -54,6 +55,10 @@ export default class RadioCommand extends Command {
     const queue = getOrCreateSongQueue(
       interaction.guildId, interaction.channel as TextChannel, channel,
     );
+
+    if (queue.volume === -1) {
+      queue.volume = await VolumeManager.get(interaction.guildId) * 100;
+    }
 
     queue.songs.push(song);
     const message = new MessageEmbed();

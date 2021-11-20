@@ -1,6 +1,7 @@
 import { TextChannel, VoiceChannel } from 'discord.js';
 import { VoiceConnection } from '@discordjs/voice';
 import Song from './Song';
+import RadioControls from './RadioControls';
 
 export default class Queue {
   guildId: string;
@@ -16,6 +17,10 @@ export default class Queue {
   isPlaying = false;
 
   connection?: VoiceConnection;
+
+  radioControls: RadioControls;
+
+  volume = -1;
 
   constructor(guildId: string, text: TextChannel, voice: VoiceChannel, songs?: Song[]) {
     this.guildId = guildId;

@@ -10,6 +10,8 @@ export default class Song {
 
   link: string;
 
+  length: string;
+
   resource?: AudioResource;
 
   public async loadResource(): Promise<AudioResource> {
