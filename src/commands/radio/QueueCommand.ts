@@ -46,7 +46,7 @@ export default class QueueCommand extends Command {
     // take the next 5 or less songs
     // take only their name
     // and join them to a string, separated by a line break
-    const upcomingSongs = queue.songs.splice(0, Math.min(5, queue.songs.length)).map((s) => Messages.toInlineBlock(s.title)).join('\n');
+    const upcomingSongs = queue.songs.slice(0, Math.min(5, queue.songs.length)).map((s) => Messages.toInlineBlock(s.title)).join('\n');
     message.addField('Upcoming Songs', upcomingSongs || 'No upcoming songs');
 
     await interaction.reply({ embeds: [message] });

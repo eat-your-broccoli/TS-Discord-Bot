@@ -3,6 +3,8 @@ import {
 } from 'discord.js';
 import { SlashCommandStringOption } from '@discordjs/builders';
 import { entersState, VoiceConnectionStatus } from '@discordjs/voice';
+import * as ytsr from 'ytsr';
+import { Video } from 'ytsr';
 import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
@@ -34,23 +36,38 @@ export default class RadioCommand extends Command {
 
     this.commandOptions = [
       new SlashCommandStringOption()
-        .setRequired(true)
+        .setRequired(false)
         .setName('link')
         .setDescription('Youtube link to the song you want to play'),
+      new SlashCommandStringOption()
+        .setRequired(false)
+        .setName('search')
+        .setDescription('Keywords of the song you want to play'),
     ];
   }
 
   async execute(interaction: CommandInteraction): Promise<void> {
-    const link = interaction.options.getString('link');
-    if (!link) throw new Error('invalid link');
+    let link = interaction.options.getString('link');
+    const searchStr = interaction.options.getString('search');
+    if (!link && !searchStr) throw new Error('pass either a link or a search string as argument');
 
+    // if there is a search, look up and use first item's link
+    if (searchStr) {
+      const results = await ytsr(searchStr, { limit: 2 });
+      if (results && results.items && results.items.length) {
+        link = (results.items[0] as Video).url;
+      } else {
+        throw new Error(`No Video found with searchStr: ${searchStr}`);
+      }
+    }
+    const song = await Song.fromYoutube(link);
+
+    if (song == null) throw new Error('No song found');
     let channel: VoiceChannel;
     if (interaction.member instanceof GuildMember) {
       channel = interaction.member.voice.channel as VoiceChannel;
     }
     if (channel == null) throw new Error('you are not in a VoiceChannel');
-
-    const song = await Song.fromYoutube(link);
 
     const queue = getOrCreateSongQueue(
       interaction.guildId, interaction.channel as TextChannel, channel,
