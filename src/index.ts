@@ -32,6 +32,10 @@ if (process.env.NODE_ENV.indexOf('dev') >= 0) {
   commands.push(new YoutubeTestCommand());
 }
 
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException', { err });
+});
+
 const bot = new DiscordBot(commands, []);
 bot.start(process.env.DISCORD_BOT_TOKEN);
 
