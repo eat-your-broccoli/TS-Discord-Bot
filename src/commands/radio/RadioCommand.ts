@@ -77,7 +77,7 @@ export default class RadioCommand extends Command {
       queue.volume = await VolumeManager.get(interaction.guildId) * 100;
     }
 
-    queue.songs.push(song);
+    queue.addSong(song);
     const message = new MessageEmbed();
     message.setTitle('Added Song');
     message.setDescription(`Added ${Messages.toInlineBlock(song.title)} to queue`);

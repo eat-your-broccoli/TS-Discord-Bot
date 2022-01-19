@@ -13,6 +13,7 @@ import HelpCommand from './commands/util/HelpCommand';
 import getToken from './utility/getToken';
 import getClientId from './utility/getClientId';
 import getGuildId from './utility/getGuildId';
+import ButtonInteractionHandler from './commands/util/ButtonInteractionHandler';
 
 /**
  * wrapping discord bot api in nice wrapper class
@@ -54,7 +55,12 @@ export default class DiscordBot {
     });
 
     this.client.on('interactionCreate', async (interaction: CommandInteraction) => {
-      if (interaction.isCommand() === false) return;
+      if (interaction.isButton() === false && interaction.isCommand() === false) return;
+
+      if (interaction.isButton()) {
+        ButtonInteractionHandler.handle(interaction);
+        return;
+      }
 
       const executable = this.findMatchingExecutable(interaction.commandName);
       if (executable) {

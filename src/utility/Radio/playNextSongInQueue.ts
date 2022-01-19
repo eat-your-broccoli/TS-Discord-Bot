@@ -1,5 +1,7 @@
 import { AudioPlayer } from '@discordjs/voice';
+// eslint-disable-next-line import/no-cycle
 import Queue from './Queue';
+// eslint-disable-next-line import/no-cycle
 import { deleteQueue } from './getSongQueue';
 // eslint-disable-next-line import/no-cycle
 import VolumeManager from './VolumeManager';
@@ -17,7 +19,11 @@ Promise<void> {
     song.resource.volume.setVolume(volume);
 
     if (queue.radioControls) {
-      // update song
+      // delete last radio controls
+      console.log('radio controls already exist');
+      queue.radioControls.setSong(song);
+      queue.radioControls.updateNextSong(queue);
+      await queue.radioControls.updateMessage();
     } else {
       queue.radioControls = new RadioControls(queue);
       queue.radioControls.parent = await queue.text.send({

@@ -4,7 +4,6 @@ import {
 import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
-import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
 import getAudioPlayer from '../../utility/Radio/getAudioPlayer';
 import { getSongQueue } from '../../utility/Radio/getSongQueue';
 
@@ -41,7 +40,7 @@ export default class SkipCommand extends Command {
     }
 
     const { currentSong } = queue;
-    await playNextSongInQueue(player, queue);
+    queue?.skip();
     const message = new MessageEmbed();
     message.setTitle('Success');
     message.setDescription(`${currentSong.title} skipped`);

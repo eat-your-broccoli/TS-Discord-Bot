@@ -3,6 +3,7 @@ import { AudioPlayerPlayingState } from '@discordjs/voice';
 import * as fs from 'fs';
 // eslint-disable-next-line import/no-cycle
 import getAudioPlayer from './getAudioPlayer';
+// eslint-disable-next-line import/no-cycle
 import { getSongQueue } from './getSongQueue';
 
 const table = 'volume';
@@ -30,6 +31,11 @@ export default class VolumeManager {
     if (!player) return;
     const newVol = this.volumeToDecimal(volume);
     (player.state as AudioPlayerPlayingState).resource.volume.setVolume(newVol);
+    // update radio controls to display correct volume
+    if (queue.radioControls) {
+      queue.radioControls.setVolume(queue.volume);
+      queue.radioControls.updateMessage().catch(console.error);
+    }
   }
 
   public static async get(guildId: string): Promise<number> {

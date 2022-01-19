@@ -2,8 +2,12 @@ import {
   EmbedFieldData,
   Message, MessageActionRow, MessageButton, MessageEmbed,
 } from 'discord.js';
+import Messages from '../Messages/Messages';
 import type Queue from './Queue';
 import Song from './Song';
+
+const lblPause = '||';
+const lblPlay = '▶';
 
 export default class RadioControls {
   parent: Message;
@@ -16,19 +20,15 @@ export default class RadioControls {
     this.message = new MessageEmbed();
     this.setSong(queue.currentSong);
     this.createOrUpdateField({ name: 'Volume', value: `${queue.volume} / 100`, inline: true });
-    this.createOrUpdateField({ name: 'Next Songs', value: `There are ${queue.songs.length} in queue`, inline: false });
+    this.updateNextSong(queue);
     this.message.setURL(queue.currentSong?.link);
 
     this.rowPlayer = new MessageActionRow();
     this.rowPlayer.addComponents([
       new MessageButton()
-        .setLabel('||')
+        .setLabel(lblPause)
         .setStyle('SECONDARY')
         .setCustomId('radioControl.action.player.pause'),
-      new MessageButton()
-        .setLabel('▶')
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.unpause'),
       new MessageButton()
         .setLabel('▶▶')
         .setStyle('SECONDARY')
@@ -43,6 +43,10 @@ export default class RadioControls {
     this.createOrUpdateField({ name: 'Link', value: song?.link || '-', inline: true });
   }
 
+  public setVolume(volume: number): void {
+    this.createOrUpdateField({ name: 'Volume', value: `${volume} / 100`, inline: true });
+  }
+
   private createOrUpdateField(field: EmbedFieldData): void {
     const existing = this.message.fields.find((f) => f.name === field.name);
     if (existing) {
@@ -54,10 +58,53 @@ export default class RadioControls {
   }
 
   public setFooter(text: string): void {
-    this.message.footer = { text };
+    this.message.footer = { text: `ℹ: ${text}` };
   }
 
   public async updateMessage(): Promise<void> {
     this.parent = await this.parent.edit({ embeds: [this.message], components: [this.rowPlayer] });
+  }
+
+  public async deleteMessage(): Promise<void> {
+    await this.parent.delete();
+  }
+
+  public pause(): void {
+    this.rowPlayer.spliceComponents(0, this.rowPlayer.components.length);
+    this.rowPlayer.addComponents([
+      new MessageButton()
+        .setLabel(lblPlay)
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.pause'),
+      new MessageButton()
+        .setLabel('▶▶')
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.skip'),
+    ]);
+  }
+
+  public unpause(): void {
+    this.rowPlayer.spliceComponents(0, this.rowPlayer.components.length);
+    this.rowPlayer.addComponents([
+      new MessageButton()
+        .setLabel(lblPause)
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.pause'),
+      new MessageButton()
+        .setLabel('▶▶')
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.skip'),
+    ]);
+  }
+
+  public updateNextSong(queue: Queue): void {
+    let nextSongs = '';
+    for (let i = 0; i < Math.min(5, queue.songs.length); i += 1) {
+      nextSongs += Messages.toInlineBlock(queue.songs[i].title);
+      nextSongs += '\n';
+    }
+    if (nextSongs.length === 0) nextSongs = 'No songs in queue';
+    else nextSongs = `(${queue.songs.length})\n${nextSongs}`;
+    this.createOrUpdateField({ name: 'Next Songs', value: nextSongs, inline: false });
   }
 }
