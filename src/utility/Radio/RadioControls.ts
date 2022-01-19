@@ -24,16 +24,7 @@ export default class RadioControls {
     this.message.setURL(queue.currentSong?.link);
 
     this.rowPlayer = new MessageActionRow();
-    this.rowPlayer.addComponents([
-      new MessageButton()
-        .setLabel(lblPause)
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.pause'),
-      new MessageButton()
-        .setLabel('▶▶')
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.skip'),
-    ]);
+    this.rowPlayer.addComponents(RadioControls.createRowPlayer(false));
   }
 
   public setSong(song?: Song): void {
@@ -71,30 +62,12 @@ export default class RadioControls {
 
   public pause(): void {
     this.rowPlayer.spliceComponents(0, this.rowPlayer.components.length);
-    this.rowPlayer.addComponents([
-      new MessageButton()
-        .setLabel(lblPlay)
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.pause'),
-      new MessageButton()
-        .setLabel('▶▶')
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.skip'),
-    ]);
+    this.rowPlayer.addComponents(RadioControls.createRowPlayer(true));
   }
 
   public unpause(): void {
     this.rowPlayer.spliceComponents(0, this.rowPlayer.components.length);
-    this.rowPlayer.addComponents([
-      new MessageButton()
-        .setLabel(lblPause)
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.pause'),
-      new MessageButton()
-        .setLabel('▶▶')
-        .setStyle('SECONDARY')
-        .setCustomId('radioControl.action.player.skip'),
-    ]);
+    this.rowPlayer.addComponents(RadioControls.createRowPlayer(false));
   }
 
   public updateNextSong(queue: Queue): void {
@@ -106,5 +79,26 @@ export default class RadioControls {
     if (nextSongs.length === 0) nextSongs = 'No songs in queue';
     else nextSongs = `(${queue.songs.length})\n${nextSongs}`;
     this.createOrUpdateField({ name: 'Next Songs', value: nextSongs, inline: false });
+  }
+
+  private static createRowPlayer(paused: boolean): MessageButton[] {
+    return [
+      new MessageButton()
+        .setLabel(paused ? lblPlay : lblPause)
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.pause'),
+      new MessageButton()
+        .setLabel('▶▶')
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.skip'),
+      new MessageButton()
+        .setLabel('🔉')
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.volume.dec'),
+      new MessageButton()
+        .setLabel('🔊')
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.volume.inc'),
+    ];
   }
 }
