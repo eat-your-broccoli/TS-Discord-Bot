@@ -45,20 +45,26 @@ export default class PauseCommand extends Command {
       message.setTitle('Success');
       message.setDescription('Paused player');
       message.setColor('GREEN');
-      await interaction.reply({ embeds: [message], ephemeral: true });
+      await interaction.reply({ embeds: [message] });
     } else if (player.state.status === 'paused') {
       player.unpause();
-      player.pause();
       const message = new MessageEmbed();
       message.setTitle('Success');
       message.setDescription('Unpaused player');
       message.setColor('GREEN');
+      await interaction.reply({ embeds: [message] });
     } else {
       player.pause();
       const message = new MessageEmbed();
       message.setTitle('Error');
       message.setDescription(`Player is in unhandled state: ${player.state.status}`);
-      message.setColor('GREEN');
+      message.setColor('RED');
+      await interaction.reply({ embeds: [message] });
+      return;
     }
+
+    setTimeout(() => {
+      interaction.deleteReply().catch(console.error);
+    }, Number(process.env.INTERACTION_REPLY_DELETE_TIME));
   }
 }

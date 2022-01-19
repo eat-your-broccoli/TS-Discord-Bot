@@ -83,6 +83,11 @@ export default class RadioCommand extends Command {
     message.setDescription(`Added ${Messages.toInlineBlock(song.title)} to queue`);
     message.setColor('GREEN');
     await interaction.reply({ embeds: [message] });
+
+    setTimeout(() => {
+      interaction.deleteReply().catch(console.error);
+    }, Number(process.env.INTERACTION_REPLY_DELETE_TIME));
+
     const player = getOrCreateAudioPlayer(interaction.guildId);
 
     if (!queue.isPlaying) {

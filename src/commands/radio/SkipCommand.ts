@@ -34,7 +34,7 @@ export default class SkipCommand extends Command {
     const player = getAudioPlayer(interaction.guildId);
     if (!queue || !queue.isPlaying || !player) {
       const message = new MessageEmbed();
-      message.setTitle('Currently there is no song played that can be skipped');
+      message.setTitle('Currently there is no song that can be skipped');
       message.setColor('YELLOW');
       await interaction.reply({ embeds: [message], ephemeral: true });
       return;
@@ -46,6 +46,10 @@ export default class SkipCommand extends Command {
     message.setTitle('Success');
     message.setDescription(`${currentSong.title} skipped`);
     message.setColor('GREEN');
-    await interaction.reply({ embeds: [message], ephemeral: true });
+    await interaction.reply({ embeds: [message] });
+
+    setTimeout(() => {
+      interaction.deleteReply().catch(console.error);
+    }, Number(process.env.INTERACTION_REPLY_DELETE_TIME));
   }
 }
