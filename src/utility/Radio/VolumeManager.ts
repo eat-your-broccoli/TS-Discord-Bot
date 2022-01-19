@@ -3,6 +3,8 @@ import { AudioPlayerPlayingState } from '@discordjs/voice';
 import * as fs from 'fs';
 // eslint-disable-next-line import/no-cycle
 import getAudioPlayer from './getAudioPlayer';
+// eslint-disable-next-line import/no-cycle
+import { getSongQueue } from './getSongQueue';
 
 const table = 'volume';
 
@@ -20,13 +22,20 @@ export default class VolumeManager {
   }
 
   public static async set(guildId: string, volume: number): Promise<void> {
-    const oldVol = await this.get(guildId);
+    const queue = getSongQueue(guildId);
+    const oldVol = queue?.volume || defaultVolume;
     if (volume > 40 && volume > oldVol + 20) throw new Error('Volume cannot be changed by steps larger than 20');
     await this.setInDB(guildId, volume);
+    if (queue) queue.volume = volume;
     const player = getAudioPlayer(guildId);
     if (!player) return;
     const newVol = this.volumeToDecimal(volume);
     (player.state as AudioPlayerPlayingState).resource.volume.setVolume(newVol);
+    // update radio controls to display correct volume
+    if (queue.radioControls) {
+      queue.radioControls.setVolume(queue.volume);
+      queue.radioControls.updateMessage().catch(console.error);
+    }
   }
 
   public static async get(guildId: string): Promise<number> {
@@ -64,7 +73,7 @@ export default class VolumeManager {
     });
   }
 
-  private static volumeToDecimal(vol: number) {
+  public static volumeToDecimal(vol: number) {
     return vol / 100;
   }
 }
