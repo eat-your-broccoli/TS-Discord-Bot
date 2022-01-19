@@ -1,4 +1,5 @@
 import { AudioPlayer, AudioPlayerError, AudioPlayerStatus } from '@discordjs/voice';
+// eslint-disable-next-line import/no-cycle
 import { getSongQueue } from './getSongQueue';
 // eslint-disable-next-line import/no-cycle
 import playNextSongInQueue from './playNextSongInQueue';
@@ -33,12 +34,24 @@ function createAudioPlayer(guildId: string): AudioPlayer {
     const queue = getSongQueue(guildId);
     const title = queue?.currentSong?.title || 'unknown';
     console.log(`Player is now playing: ${title}`);
+    if (queue) {
+      queue.radioControls.unpause();
+      queue.radioControls.updateMessage().catch(console.error);
+    }
   });
 
   // on error play next song
   player.on('error', (error) => {
     if (error instanceof AudioPlayerError) console.error(`Player Error: ${error.message} with resource ${error.resource.metadata}`);
     else console.error(`Player Error: ${error}`);
+  });
+
+  player.on(AudioPlayerStatus.Paused, () => {
+    const queue = getSongQueue(guildId);
+    if (queue) {
+      queue.radioControls.pause();
+      queue.radioControls.updateMessage().catch(console.error);
+    }
   });
 
   return player;

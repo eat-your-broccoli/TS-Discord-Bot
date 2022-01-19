@@ -5,6 +5,7 @@ import Command from '../Command';
 import Shorthand from '../Shorthand';
 import ScopedLanguageHandler from '../../utility/Lang/ScopedLanguageHandler';
 import VolumeManager from '../../utility/Radio/VolumeManager';
+import Messages from '../../utility/Messages/Messages';
 
 /**
  * pauses or resumes player
@@ -57,8 +58,13 @@ export default class VolumeCommand extends Command {
 
     const message = new MessageEmbed();
     message.setTitle('Success');
-    message.setDescription(`Volume set to ${vol}`);
+    message.setDescription(`Volume set to ${vol}\n\n
+      ${Messages.toInlineBlock(`This Message will be deleted after ${Number(process.env.INTERACTION_REPLY_DELETE_TIME) / 1000} seconds`)}`);
     message.setColor('GREEN');
-    await interaction.reply({ embeds: [message], ephemeral: true });
+    await interaction.reply({ embeds: [message] });
+
+    setTimeout(() => {
+      interaction.deleteReply().catch(console.error);
+    }, Number(process.env.INTERACTION_REPLY_DELETE_TIME));
   }
 }

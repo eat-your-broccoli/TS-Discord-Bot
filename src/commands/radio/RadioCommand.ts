@@ -15,6 +15,7 @@ import { getOrCreateSongQueue } from '../../utility/Radio/getSongQueue';
 import playNextSongInQueue from '../../utility/Radio/playNextSongInQueue';
 import Messages from '../../utility/Messages/Messages';
 import stopPlayer from '../../utility/Radio/stopPlayer';
+import VolumeManager from '../../utility/Radio/VolumeManager';
 
 /**
  * adds a song to the queue
@@ -72,12 +73,21 @@ export default class RadioCommand extends Command {
       interaction.guildId, interaction.channel as TextChannel, channel,
     );
 
-    queue.songs.push(song);
+    if (queue.volume === -1) {
+      queue.volume = await VolumeManager.get(interaction.guildId) * 100;
+    }
+
+    queue.addSong(song);
     const message = new MessageEmbed();
     message.setTitle('Added Song');
     message.setDescription(`Added ${Messages.toInlineBlock(song.title)} to queue`);
     message.setColor('GREEN');
     await interaction.reply({ embeds: [message] });
+
+    setTimeout(() => {
+      interaction.deleteReply().catch(console.error);
+    }, Number(process.env.INTERACTION_REPLY_DELETE_TIME));
+
     const player = getOrCreateAudioPlayer(interaction.guildId);
 
     if (!queue.isPlaying) {
