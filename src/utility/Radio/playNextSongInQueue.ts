@@ -5,10 +5,26 @@ import Queue from './Queue';
 import { deleteQueue } from './getSongQueue';
 // eslint-disable-next-line import/no-cycle
 import VolumeManager from './VolumeManager';
+// eslint-disable-next-line import/no-cycle
 import RadioControls from './RadioControls';
+import Song from './Song';
 
 export default async function playNextSongInQueue(player: AudioPlayer, queue: Queue):
 Promise<void> {
+  queue.currentSong?.resource.volume.setVolume(0);
+  if (queue.songs.length === 0 && queue.config.autoplay) {
+    queue.radioControls?.setFooter('fetching song from recommendations ...');
+    console.log(`queue is exhausted, fetch song from youtube recommendations for ${queue.currentSong?.title}`);
+    const rec = await queue.currentSong?.getRecommendations();
+    if (rec && rec.length > 0) {
+      const r = rec.find((recs) => recs.title !== queue.currentSong.title);
+      const newSong = await Song.fromYoutube(Song.idToYoutubeLink(r.id));
+      queue.addSong(newSong);
+    } else {
+      queue.radioControls?.setFooter('fetching recommendations failed');
+    }
+  }
+
   if (queue.songs.length > 0) {
     const song = queue.getNextSong();
     const volume = VolumeManager.volumeToDecimal(queue.volume);
