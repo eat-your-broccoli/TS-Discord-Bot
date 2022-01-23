@@ -2,12 +2,17 @@ import {
   EmbedFieldData,
   Message, MessageActionRow, MessageButton, MessageEmbed,
 } from 'discord.js';
+import { AudioPlayerStatus } from '@discordjs/voice';
 import Messages from '../Messages/Messages';
 import type Queue from './Queue';
 import Song from './Song';
+// eslint-disable-next-line import/no-cycle
+import getAudioPlayer from './getAudioPlayer';
 
 const lblPause = '||';
 const lblPlay = '▶';
+const lblAutoplayActive = '🔎✅';
+const lblAutoplayOff = '🔎❌';
 
 export default class RadioControls {
   parent: Message;
@@ -16,7 +21,10 @@ export default class RadioControls {
 
   rowPlayer: MessageActionRow;
 
+  queue: Queue;
+
   constructor(queue: Queue) {
+    this.queue = queue;
     this.message = new MessageEmbed();
     this.setSong(queue.currentSong);
     this.createOrUpdateField({ name: 'Volume', value: `${queue.volume} / 100`, inline: true });
@@ -24,7 +32,7 @@ export default class RadioControls {
     this.message.setURL(queue.currentSong?.link);
 
     this.rowPlayer = new MessageActionRow();
-    this.rowPlayer.addComponents(RadioControls.createRowPlayer(false));
+    this.rowPlayer.addComponents(this.createRowPlayer());
   }
 
   public setSong(song?: Song): void {
@@ -61,13 +69,16 @@ export default class RadioControls {
   }
 
   public pause(): void {
-    this.rowPlayer.spliceComponents(0, this.rowPlayer.components.length);
-    this.rowPlayer.addComponents(RadioControls.createRowPlayer(true));
+    this.updateRowPlayer();
   }
 
   public unpause(): void {
+    this.updateRowPlayer();
+  }
+
+  public updateRowPlayer(): void {
     this.rowPlayer.spliceComponents(0, this.rowPlayer.components.length);
-    this.rowPlayer.addComponents(RadioControls.createRowPlayer(false));
+    this.rowPlayer.addComponents(this.createRowPlayer());
   }
 
   public updateNextSong(queue: Queue): void {
@@ -81,7 +92,10 @@ export default class RadioControls {
     this.createOrUpdateField({ name: 'Next Songs', value: nextSongs, inline: false });
   }
 
-  private static createRowPlayer(paused: boolean): MessageButton[] {
+  private createRowPlayer(): MessageButton[] {
+    const { autoplay } = this.queue.config;
+    const player = getAudioPlayer(this.queue.guildId);
+    const paused = player?.state.status === AudioPlayerStatus.Paused;
     return [
       new MessageButton()
         .setLabel(paused ? lblPlay : lblPause)
@@ -91,6 +105,10 @@ export default class RadioControls {
         .setLabel('▶▶')
         .setStyle('SECONDARY')
         .setCustomId('radioControl.action.player.skip'),
+      new MessageButton()
+        .setLabel(autoplay ? lblAutoplayActive : lblAutoplayOff)
+        .setStyle('SECONDARY')
+        .setCustomId('radioControl.action.player.autoplay'),
       new MessageButton()
         .setLabel('🔉')
         .setStyle('SECONDARY')

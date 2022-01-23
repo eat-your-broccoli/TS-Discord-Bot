@@ -1,5 +1,6 @@
 import { AudioResource, createAudioResource } from '@discordjs/voice';
 import * as ytdl from 'ytdl-core';
+import { relatedVideo } from 'ytdl-core';
 import createYtSteam from './createYtSteam';
 
 /**
@@ -23,6 +24,11 @@ export default class Song {
     return this.resource;
   }
 
+  public async getRecommendations(): Promise<relatedVideo[]> {
+    const info = await ytdl.getInfo(this.link);
+    return info.related_videos;
+  }
+
   public static async fromYoutube(link: string): Promise<Song> {
     const songInfo = await ytdl.getBasicInfo(link);
     if (!songInfo) throw new Error(`invalid YouTube link: ${link}`);
@@ -32,5 +38,9 @@ export default class Song {
     song.link = link;
 
     return song;
+  }
+
+  public static idToYoutubeLink(id: string): string {
+    return `https://www.youtube.com/watch?v=${id}`;
   }
 }

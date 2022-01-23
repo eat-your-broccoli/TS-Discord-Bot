@@ -1,11 +1,13 @@
 import { TextChannel, VoiceChannel } from 'discord.js';
 import { VoiceConnection } from '@discordjs/voice';
 import Song from './Song';
+// eslint-disable-next-line import/no-cycle
 import RadioControls from './RadioControls';
 // eslint-disable-next-line import/no-cycle
 import playNextSongInQueue from './playNextSongInQueue';
 // eslint-disable-next-line import/no-cycle
 import getAudioPlayer from './getAudioPlayer';
+import QueueConfig from './QueueConfig';
 
 export default class Queue {
   guildId: string;
@@ -26,11 +28,14 @@ export default class Queue {
 
   volume = -1;
 
+  config: QueueConfig;
+
   constructor(guildId: string, text: TextChannel, voice: VoiceChannel, songs?: Song[]) {
     this.guildId = guildId;
     this.text = text;
     this.voice = voice;
     this.songs = songs || [];
+    this.config = new QueueConfig();
   }
 
   public getNextSong(): Song | null {
@@ -64,9 +69,17 @@ export default class Queue {
   }
 
   public addSong(song: Song): void {
+    console.log(`added ${song.title} to queue`);
     this.songs.push(song);
     this.radioControls?.setFooter(`${song?.title} added`);
     this.radioControls?.updateNextSong(this);
     this.radioControls?.updateMessage().catch(console.error);
+  }
+
+  public toggleAutoplay() {
+    this.config.autoplay = !this.config.autoplay;
+    console.log(`updating autoplay ${this.config.autoplay}`);
+    this.radioControls.updateRowPlayer();
+    this.radioControls.updateMessage().catch(console.error);
   }
 }
