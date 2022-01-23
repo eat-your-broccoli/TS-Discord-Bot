@@ -11,6 +11,7 @@ export default class RadioControlInteraction {
       case 'radioControl.action.player.skip': this.skipPlayer(interaction); break;
       case 'radioControl.action.player.volume.inc': this.incVolume(interaction); break;
       case 'radioControl.action.player.volume.dec': this.decVolume(interaction); break;
+      case 'radioControl.action.player.autoplay': this.autoplay(interaction); break;
 
       default: break;
     }
@@ -44,6 +45,12 @@ export default class RadioControlInteraction {
     let vol = await VolumeManager.get(interaction.guildId);
     vol = Math.round(Number(vol) * 100 - 2);
     await VolumeManager.set(interaction.guildId, Math.min(100, vol));
+    interaction.deferUpdate().catch(console.error);
+  }
+
+  static async autoplay(interaction: ButtonInteraction): Promise<void> {
+    const queue = getSongQueue(interaction.guildId);
+    queue?.toggleAutoplay();
     interaction.deferUpdate().catch(console.error);
   }
 }
