@@ -9,10 +9,14 @@ import playNextSongInQueue from './playNextSongInQueue';
 import getAudioPlayer from './getAudioPlayer';
 import QueueConfig from './QueueConfig';
 
+const historyMaxLength = 5;
+
 export default class Queue {
   guildId: string;
 
   songs: Song[];
+
+  history: Song[];
 
   text: TextChannel;
 
@@ -36,13 +40,16 @@ export default class Queue {
     this.voice = voice;
     this.songs = songs || [];
     this.config = new QueueConfig();
+    this.history = [];
   }
 
   public getNextSong(): Song | null {
-    const song = this.songs.shift();
-    this.currentSong = song;
+    if (this.config.historyMode === true) {
+      this.addToHistory(this.currentSong);
+    }
+    this.currentSong = this.songs.shift();
     this.preloadNextSong();
-    return song;
+    return this.currentSong;
   }
 
   public preloadNextSong(): void {
@@ -76,10 +83,19 @@ export default class Queue {
     this.radioControls?.updateMessage().catch(console.error);
   }
 
-  public toggleAutoplay() {
+  public toggleAutoplay(): void {
     this.config.autoplay = !this.config.autoplay;
     console.log(`updating autoplay ${this.config.autoplay}`);
     this.radioControls.updateRowPlayer();
     this.radioControls.updateMessage().catch(console.error);
+  }
+
+  private addToHistory(song: Song): void {
+    if (song == null) return;
+    song.resource = null;
+    this.history.push(song);
+    while (this.history.length > historyMaxLength) {
+      this.history.shift();
+    }
   }
 }
