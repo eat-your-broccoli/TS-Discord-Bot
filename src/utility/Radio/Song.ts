@@ -7,6 +7,8 @@ import createYtSteam from './createYtSteam';
  * a Song that can be played by a Player
  */
 export default class Song {
+  id: string;
+
   title: string;
 
   link: string;
@@ -36,6 +38,7 @@ export default class Song {
     const song = new Song();
     song.title = songInfo.videoDetails.title;
     song.link = link;
+    song.id = songInfo.videoDetails.videoId;
 
     return song;
   }

@@ -17,9 +17,13 @@ Promise<void> {
     console.log(`queue is exhausted, fetch song from youtube recommendations for ${queue.currentSong?.title}`);
     const rec = await queue.currentSong?.getRecommendations();
     if (rec && rec.length > 0) {
-      const r = rec.find((recs) => recs.title !== queue.currentSong.title);
-      const newSong = await Song.fromYoutube(Song.idToYoutubeLink(r.id));
-      queue.addSong(newSong);
+      // find song that wasn't played before
+      const lastPlayedSongs = queue.history.map((h) => h.id);
+      const r = rec.find((recs) => !lastPlayedSongs.includes(recs.id));
+      if (r) {
+        const newSong = await Song.fromYoutube(Song.idToYoutubeLink(r.id));
+        queue.addSong(newSong);
+      }
     } else {
       queue.radioControls?.setFooter('fetching recommendations failed');
     }
