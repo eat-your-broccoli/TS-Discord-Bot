@@ -53,9 +53,10 @@ export default class RadioCommand extends Command {
 
     // if there is a search, look up and use first item's link
     if (searchStr) {
-      const results = await ytsr(searchStr, { limit: 2 });
-      if (results && results.items && results.items.length) {
-        link = (results.items[0] as Video).url;
+      const results = await ytsr(searchStr, { limit: 10 });
+      const videos = results.items.filter((i) => i.type === 'video');
+      if (videos && videos.length) {
+        link = (videos[0] as Video).url;
       } else {
         throw new Error(`No Video found with searchStr: ${searchStr}`);
       }
